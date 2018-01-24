@@ -1,4 +1,4 @@
 function loadtexttree(filename::String)
-    branches = CSV.read(joinpath(pwd(),filename),null="");
+    branches = CSV.read(joinpath(Pkg.dir("CVModule"),"src\\",filename),null="");
     return branches
 end
