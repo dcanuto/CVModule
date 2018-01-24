@@ -1,9 +1,9 @@
 # CardioModeling
 Closed-loop model of the cardiovascular system with autonomic regulation. No fancy frills for interactive sessions yet (i.e., running a case requires manual changes to the `vascular_main.jl` function). To install:
 
-    Pkg.clone()
+    Pkg.clone("git://github.com/dcanuto/CardioModeling.git")
 
-After installation, open the `vascular_main.jl` function and set options:
+After installation, open the `vascular_main.jl` script and set options:
 
     rstflag = "yes" # (or "no")
     hemoflag = "yes"
@@ -17,6 +17,6 @@ To run a case for `N` cardiac cycles, set the keyword argument `numbeatstotal` i
 
     system = buildall(filename;numbeatstotal=N,restart=rstflag,injury=hemoflag);
     
-With the above options set, build the `vascular_main` function. Then run a case for `n` time steps from the Julia REPL:
+With the above options set, build the `vascular_main` script. Then run a case for `n` time steps from the Julia REPL:
 
-    system, n = vascular_main();
+    system, n = main();
