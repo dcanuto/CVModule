@@ -1,11 +1,9 @@
-# cardio-modeling
-Closed-loop model of the cardiovascular system with autonomic regulation. No fancy frills for interactive sessions yet (i.e., running a case requires manual changes to the `vascular_main.jl` function). The following packages are required:
+# CardioModeling
+Closed-loop model of the cardiovascular system with autonomic regulation. No fancy frills for interactive sessions yet (i.e., running a case requires manual changes to the `vascular_main.jl` function). To install:
 
-    Pkg.add("NumericalIntegration")
-    Pkg.add("MAT")
-    Pkg.add("Interpolations")
+    Pkg.clone()
 
-To run, first open a Julia session in the `src\` directory, then build the necessary types and functions by building `CVModule.jl`. After building the module, open the `vascular_main.jl` function and set options:
+After installation, open the `vascular_main.jl` function and set options:
 
     rstflag = "yes" # (or "no")
     hemoflag = "yes"
