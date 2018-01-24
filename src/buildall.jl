@@ -1,6 +1,6 @@
 type CVSystem # entire solution
     heart::CVModule.Heart
-    # branches::ArterialBranches
+    branches::CVModule.ArterialBranches
     # svc::VenaCava
     # ivc::VenaCava
     # lungs::Lungs
@@ -20,14 +20,14 @@ type CVSystem # entire solution
         this = new()
         if restart == "no"
             this.heart = CVModule.Heart();
-            # this.branches = CVModule.ArterialBranches(filename);
-        # elseif restart == "yes"
-        #     vars = MAT.matread(filename);
-        #     sys = vars["system"];
-        #     heart = sys["heart"];
-        #     branches = sys["branches"];
-        #     this.heart = CVModule.Heart(heart,restart)
-        #     this.branches = CVModule.ArterialBranches(filename,branches,restart)
+            this.branches = CVModule.ArterialBranches(filename);
+        elseif restart == "yes"
+            vars = MAT.matread(filename);
+            sys = vars["system"];
+            heart = sys["heart"];
+            branches = sys["branches"];
+            this.heart = CVModule.Heart(heart,restart)
+            this.branches = CVModule.ArterialBranches(filename,branches,restart)
         else
             error("Keyword restart must either be yes or no. Aborting.")
         end
@@ -36,7 +36,7 @@ type CVSystem # entire solution
         # this.lungs = CVModule.Lungs();
         # this.cns = CVModule.CNS();
         # this.hemo = CVModule.Hemorrhage();
-        # this.solverparams = CVModule.SolverParams();
+        this.solverparams = CVModule.SolverParams();
         this.t = Vector{Float64}[];
         return this
     end

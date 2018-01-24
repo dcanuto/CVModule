@@ -9,7 +9,7 @@ rstflag = "no"
 hemoflag = "no"
 saveflag = "yes"
 
-system = buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
 
 # n = system.solverparams.nstart;
 #

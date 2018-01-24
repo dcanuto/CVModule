@@ -6,13 +6,13 @@ importall Interpolations
 
 # conversion factors and solver parameters
 include("conversions.jl")
-# include("solverparams.jl")
+include("solverparams.jl")
 
 # function for loading 1D domain empirical data from CSV file
 # include("loadtexttree.jl")
 
 # type definitions
-# include("buildbranches.jl")
+include("buildbranches.jl")
 include("buildheart.jl")
 # include("buildvenacava.jl")
 # include("buildlungs.jl")
@@ -103,6 +103,8 @@ include("buildall.jl")
 
 export CVSystem
 export Heart
+export ArterialBranches
+export SolverParams
 
 # export loadtexttree
 # export calcbranchprops!

@@ -88,7 +88,7 @@ type ArterialBranches # 1D arterial domain
             # this.Rao = 0.01*mmHgToPa/cm3Tom3;
 
             # pull in artery data from text file
-            temp = loadtexttree(filename);
+            temp = CVModule.loadtexttree(filename);
 
             foreach((x)->push!(this.name,get(x)),temp[:Name])
             foreach((x)->push!(this.parentname,get(x)),temp[:ParentName])
@@ -143,7 +143,7 @@ type ArterialBranches # 1D arterial domain
             end
         end
 
-        this.term = Vector{ArterialTerminal}(length(this.ID));
+        this.term = Vector{CVModule.ArterialTerminal}(length(this.ID));
 
         return this
     end
