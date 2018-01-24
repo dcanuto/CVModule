@@ -1,12 +1,12 @@
 type CVSystem # entire solution
     heart::CVModule.Heart
     branches::CVModule.ArterialBranches
-    # svc::VenaCava
-    # ivc::VenaCava
-    # lungs::Lungs
-    # hemo::Hemorrhage
-    # cns::CNS
-    # solverparams::SolverParams
+    svc::CVModule.VenaCava
+    ivc::CVModule.VenaCava
+    lungs::CVModule.Lungs
+    hemo::CVModule.Hemorrhage
+    cns::CVModule.CNS
+    solverparams::CVModule.SolverParams
     t::Vector{Float64}
     # arterialvolume::Float64
     # peripheralvolume::Float64
@@ -31,11 +31,11 @@ type CVSystem # entire solution
         else
             error("Keyword restart must either be yes or no. Aborting.")
         end
-        # this.svc = CVModule.VenaCava();
-        # this.ivc = CVModule.VenaCava();
-        # this.lungs = CVModule.Lungs();
-        # this.cns = CVModule.CNS();
-        # this.hemo = CVModule.Hemorrhage();
+        this.svc = CVModule.VenaCava();
+        this.ivc = CVModule.VenaCava();
+        this.lungs = CVModule.Lungs();
+        this.cns = CVModule.CNS();
+        this.hemo = CVModule.Hemorrhage();
         this.solverparams = CVModule.SolverParams();
         this.t = Vector{Float64}[];
         return this
@@ -46,10 +46,10 @@ end
 function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
     if restart == "no"
         system = CVModule.CVSystem(filename);
-        # system.solverparams.numbeatstotal = numbeatstotal;
-        # calcbranchprops!(system);
-        # discretizebranches!(system);
-        # assignterminals!(system);
+        system.solverparams.numbeatstotal = numbeatstotal;
+        CVModule.calcbranchprops!(system);
+        CVModule.discretizebranches!(system);
+        CVModule.assignterminals!(system);
         # discretizeperiphery!(system);
         # discretizeheart!(system);
         # discretizelungs!(system);

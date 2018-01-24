@@ -126,7 +126,7 @@ function assignterminals!(system::CVSystem,old=Dict("a"=>0),restart="no")
     # construct and define terminals
     for i in 1:length(system.branches.ID)
         if isempty(system.branches.children[i])
-            system.branches.term[i] = ArterialTerminal();
+            system.branches.term[i] = CVModule.ArterialTerminal();
             group = system.branches.group[i];
             if group == "lower"
                 if !isempty(system.branches.term[i].C)
@@ -228,7 +228,7 @@ function assignterminals!(system::CVSystem,old=Dict("a"=>0),restart="no")
                 append!(system.branches.term[i].L,[zeros(4),L5Upper;])
             end
         else
-            system.branches.term[i] = ArterialTerminal();
+            system.branches.term[i] = CVModule.ArterialTerminal();
             if !isempty(system.branches.term[i].C)
                 system.branches.term[i].C[1] += NaN;
             else

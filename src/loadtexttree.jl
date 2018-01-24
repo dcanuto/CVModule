@@ -1,6 +1,4 @@
-using CSV
-
 function loadtexttree(filename::String)
-    branches = CSV.read(filename,null="");
+    branches = CSV.read(joinpath(pwd(),filename),null="");
     return branches
 end

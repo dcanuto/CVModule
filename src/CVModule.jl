@@ -3,6 +3,7 @@ module CVModule # All functions/types needed for closed-loop CV system solver
 importall NumericalIntegration
 importall MAT
 importall Interpolations
+importall CSV
 
 # conversion factors and solver parameters
 include("conversions.jl")
@@ -14,16 +15,16 @@ include("loadtexttree.jl")
 # type definitions
 include("buildbranches.jl")
 include("buildheart.jl")
-# include("buildvenacava.jl")
-# include("buildlungs.jl")
-# include("buildcns.jl")
-# include("buildhemo.jl")
+include("buildvenacava.jl")
+include("buildlungs.jl")
+include("buildcns.jl")
+include("buildhemo.jl")
 include("buildall.jl")
 
-# # memory allocators for solution variables
-# include("calcbranchprops.jl")
-# include("discretizebranches.jl")
-# include("assignterminals.jl")
+# memory allocators for solution variables
+include("calcbranchprops.jl")
+include("discretizebranches.jl")
+include("assignterminals.jl")
 # include("discretizeperiphery.jl")
 # include("discretizeheart.jl")
 # include("discretizelungs.jl")
@@ -105,12 +106,15 @@ export CVSystem
 export Heart
 export ArterialBranches
 export SolverParams
-export loadtexttree
+export VenaCava
+export Lungs
+export CNS
+export Hemorrhage
 
-# export loadtexttree
-# export calcbranchprops!
-# export discretizebranches!
-# export assignterminals!
+export loadtexttree
+export calcbranchprops!
+export discretizebranches!
+export assignterminals!
 # export discretizeperiphery!
 # export discretizeheart!
 # export discretizelungs!
