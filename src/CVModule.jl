@@ -9,7 +9,7 @@ include("conversions.jl")
 include("solverparams.jl")
 
 # function for loading 1D domain empirical data from CSV file
-# include("loadtexttree.jl")
+include("loadtexttree.jl")
 
 # type definitions
 include("buildbranches.jl")
@@ -105,6 +105,7 @@ export CVSystem
 export Heart
 export ArterialBranches
 export SolverParams
+export loadtexttree
 
 # export loadtexttree
 # export calcbranchprops!
