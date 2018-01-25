@@ -67,8 +67,8 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
     end
 
     # assign function/Jacobian handles
-    f = fav;
-    J = Jav;
+    f = CVModule.fav;
+    J = CVModule.Jav;
 
     # setup for iterations
     xx = x0;
@@ -117,7 +117,7 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         # println(inv(D*JJ))
         s = -inv(D*JJ)*fvec;
         # line search to update state vector
-        fn, xn, check = linesearch(xx,fold,g,s,stpmax,system,n,state);
+        fn, xn, check = CVModule.linesearch(xx,fold,g,s,stpmax,system,n,state);
         # println(xn[1]*vs)
         # check if sufficiently close to root
         JJ = J(xn,system,n,state);

@@ -5,8 +5,8 @@ function linedist(xold::Vector{Float64},fold::Float64,
     tolx = 1e-7;
     check = false;
 
-    f = fdist;
-    J = Jdist;
+    f = CVModule.fdist;
+    J = CVModule.Jdist;
 
     # scale if attempted step too large
     np = norm(p);

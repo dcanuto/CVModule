@@ -11,7 +11,7 @@ function coupleproximal!(system::CVSystem,n::Int64)
 
     if AV == "closed"
         # update left-running invariant by extrapolation
-        rootinvariant!(system,n);
+        CVModule.rootinvariant!(system,n);
         # update right-running invariant
         system.branches.W1root = -system.branches.W2root;
         # update proximal A, Q w/ invariants
@@ -25,10 +25,10 @@ function coupleproximal!(system::CVSystem,n::Int64)
             system.branches.Q[1][n+1,1]));
     else
         # ventricular elastance at next time step
-        elastancefn!(system,n+1);
+        CVModule.elastancefn!(system,n+1);
         # update W2 by extrapolation
-        rootinvariant!(system,n);
+        CVModule.rootinvariant!(system,n);
         # Newton iterations
-        newtonav!(system,n,AV);
+        CVModule.newtonav!(system,n,AV);
     end
 end

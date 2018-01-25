@@ -1,6 +1,6 @@
 function correctvolume!(system::CVSystem,n::Int64)
     # get current volume
-    updatevolumes!(system,n);
+    CVModule.updatevolumes!(system,n);
 
     # find error in volume
     error = system.finalvolume + (system.hemo.Vloss - system.hemo.Vlossinit) - system.initialvolume;

@@ -64,21 +64,21 @@ function regulateall!(system::CVSystem,n::Int64)
         -system.cns.alphaV5U*system.cns.ns[system.solverparams.numbeats+1]+
         system.cns.gammaV5U);
 
-    regulateperiphery!(system,n);
+    CVModule.regulateperiphery!(system,n);
 
     # check for start of new cardiac cycle
     oldnumbeats = system.solverparams.numbeats;
-    setnumbeats!(system,n);
+    CVModule.setnumbeats!(system,n);
     if oldnumbeats < system.solverparams.numbeats
         # baroreflex pressure
-        reflexpressure!(system,n);
+        CVModule.reflexpressure!(system,n);
         # SNS/PSNS activations
-        cnsactivations!(system,n);
-        regulateheart!(system,n);
-        correctvolume!(system,n);
+        CVModule.cnsactivations!(system,n);
+        CVModule.regulateheart!(system,n);
+        CVModule.correctvolume!(system,n);
         # update time discretization
         if system.solverparams.numbeats < system.solverparams.numbeatstotal
-            updatediscretization!(system);
+            CVModule.updatediscretization!(system);
         end
     end
 end

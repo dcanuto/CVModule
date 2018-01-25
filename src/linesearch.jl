@@ -12,8 +12,8 @@ function linesearch(xold::Vector{Float64},fold::Float64,
         zs = system.heart.av.zeta[n+1];
     end
 
-    f = fav;
-    J = Jav;
+    f = CVModule.fav;
+    J = CVModule.Jav;
 
     # scale if attempted step too large
     np = norm(p);

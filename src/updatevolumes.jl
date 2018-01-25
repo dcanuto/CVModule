@@ -10,7 +10,7 @@ function updatevolumes!(system::CVSystem,n::Int64)
         x = convert(Array{Float64,1},
             linspace(0,system.branches.lengthincm[i]*cmTom,
             system.solverparams.JL));
-        system.arterialvolume += integrate(x,system.branches.A[i][n+1,:]);
+        system.arterialvolume += NumericalIntegration.integrate(x,system.branches.A[i][n+1,:]);
         if isempty(system.branches.children[i])
             system.arterialvolume += system.branches.term[i].V[n+1,1];
             system.peripheralvolume += sum(system.branches.term[i].V[n+1,2:5]);

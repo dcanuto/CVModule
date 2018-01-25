@@ -14,17 +14,17 @@ function newton!(system::CVSystem,n::Int64,parentID::Int64)
 
     # Newton iteration system of eqs. Jacobian based on junction type
     if numchildren == 1
-        f = fsingle;
-        J = Jsingle;
+        f = CVModule.fsingle;
+        J = CVModule.Jsingle;
     elseif numchildren == 2
-        f = fdouble;
-        J = Jdouble;
+        f = CVModule.fdouble;
+        J = CVModule.Jdouble;
     elseif numchildren == 3
-        f = ftriple;
-        J = Jtriple;
+        f = CVModule.ftriple;
+        J = CVModule.Jtriple;
     elseif numchildren == 4
-        f = fquad;
-        J = Jquad;
+        f = CVModule.fquad;
+        J = CVModule.Jquad;
     end
 
     xx = x0;

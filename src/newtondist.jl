@@ -21,8 +21,8 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
     x0[2] = x0[2]/Vs;
 
     # assign function/Jacobian handles
-    f = fdist;
-    J = Jdist;
+    f = CVModule.fdist;
+    J = CVModule.Jdist;
 
     # setup for iterations
     xx = x0;
@@ -59,7 +59,7 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
         # println(inv(D*JJ))
         s = -inv(D*JJ)*fvec;
         # line search to update state vector
-        fn, xn, check = linedist(xx,fold,g,s,stpmax,system,n,ID);
+        fn, xn, check = CVModule.linedist(xx,fold,g,s,stpmax,system,n,ID);
         # println(xn[1]*vs)
         # check if sufficiently close to root
         JJ = J(xn,system,n,ID);
