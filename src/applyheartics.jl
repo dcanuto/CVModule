@@ -25,5 +25,5 @@ function applyheartics!(system::CVSystem,old=Dict("a"=>0),restart="no")
     end
 
     # associated pressures
-    elastancemodel!(system,0);
+    CVModule.elastancemodel!(system,0);
 end

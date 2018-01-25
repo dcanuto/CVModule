@@ -25,27 +25,27 @@ include("buildall.jl")
 include("calcbranchprops.jl")
 include("discretizebranches.jl")
 include("assignterminals.jl")
-# include("discretizeperiphery.jl")
-# include("discretizeheart.jl")
-# include("discretizelungs.jl")
-# include("discretizecns.jl")
+include("discretizeperiphery.jl")
+include("discretizeheart.jl")
+include("discretizelungs.jl")
+include("discretizecns.jl")
 # include("updatediscretization.jl")
-#
-# # initial conditions for each submodel
-# include("applybranchics.jl")
-# include("applyperipheryics.jl")
-# include("applyheartics.jl")
-# include("applylungics.jl")
-# include("applycnsics.jl")
-# include("applycustomics.jl")
 
-# # heart model
-# include("elastancefn.jl")
-# include("elastancemodel.jl")
+# initial conditions for each submodel
+include("applybranchics.jl")
+include("applyperipheryics.jl")
+include("applyheartics.jl")
+include("applylungics.jl")
+include("applycnsics.jl")
+include("applycustomics.jl")
+
+# heart model
+include("elastancefn.jl")
+include("elastancemodel.jl")
 # include("setnumbeats.jl")
-#
-# # volume tracker, error corrector for mass conservation
-# include("updatevolumes.jl")
+
+# volume tracker, error corrector for mass conservation
+include("updatevolumes.jl")
 # include("correctvolume.jl")
 #
 # # Lax-Wendroff method for interior points of arterial network
@@ -97,9 +97,9 @@ include("assignterminals.jl")
 # include("cnsactivations.jl")
 # include("regulateheart.jl")
 #
-# # hemorrhage/tourniquet application
+# hemorrhage/tourniquet application
 # include("applytourniquet.jl")
-# include("applyhemoics.jl")
+include("applyhemoics.jl")
 # include("modelhemo.jl")
 
 export CVSystem
@@ -115,19 +115,19 @@ export loadtexttree
 export calcbranchprops!
 export discretizebranches!
 export assignterminals!
-# export discretizeperiphery!
-# export discretizeheart!
-# export discretizelungs!
-# export discretizecns!
-# export applybranchics!
-# export applyperipheryics!
-# export applyheartics!
-# export applylungics!
-# export applycnsics!
-# export applycustomics!
-# export elastancefn!
-# export elastancemodel!
-# export updatevolumes!
+export discretizeperiphery!
+export discretizeheart!
+export discretizelungs!
+export discretizecns!
+export applybranchics!
+export applyperipheryics!
+export applyheartics!
+export applylungics!
+export applycnsics!
+export applycustomics!
+export elastancefn!
+export elastancemodel!
+export updatevolumes!
 export buildall
 # export predictorfluxes!
 # export predictorstep!
@@ -163,5 +163,6 @@ export buildall
 # export regulateheart!
 # export updatediscretization!
 # export applytourniquet!
+export applyhemoics!
 
 end

@@ -112,6 +112,7 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
             push!(system.branches.W2,0.);
         end
     end
+    print("Number of nodes per branch: ")
     println(system.solverparams.JL)
     return system
 end

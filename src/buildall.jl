@@ -8,13 +8,13 @@ type CVSystem # entire solution
     cns::CVModule.CNS
     solverparams::CVModule.SolverParams
     t::Vector{Float64}
-    # arterialvolume::Float64
-    # peripheralvolume::Float64
-    # vcvolume::Float64
-    # heartvolume::Float64
-    # lungvolume::Float64
-    # initialvolume::Float64
-    # finalvolume::Float64
+    arterialvolume::Float64
+    peripheralvolume::Float64
+    vcvolume::Float64
+    heartvolume::Float64
+    lungvolume::Float64
+    initialvolume::Float64
+    finalvolume::Float64
 
     function CVSystem(filename="test.csv",restart="no")
         this = new()
@@ -50,40 +50,40 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         CVModule.calcbranchprops!(system);
         CVModule.discretizebranches!(system);
         CVModule.assignterminals!(system);
-        # discretizeperiphery!(system);
-        # discretizeheart!(system);
-        # discretizelungs!(system);
-        # discretizecns!(system);
-        # applybranchics!(system);
-        # applyperipheryics!(system);
-        # applyheartics!(system);
-        # applylungics!(system);
-        # applycnsics!(system);
-        # applycustomics!(system);
+        CVModule.discretizeperiphery!(system);
+        CVModule.discretizeheart!(system);
+        CVModule.discretizelungs!(system);
+        CVModule.discretizecns!(system);
+        CVModule.applybranchics!(system);
+        CVModule.applyperipheryics!(system);
+        CVModule.applyheartics!(system);
+        CVModule.applylungics!(system);
+        CVModule.applycnsics!(system);
+        CVModule.applycustomics!(system);
     elseif restart == "yes"
-        # vars = matread(filename);
-        # sys = vars["system"];
-        # branches = sys["branches"];
-        # term = branches["term"];
-        # heart = sys["heart"];
-        # lungs = sys["lungs"];
-        # cns = sys["cns"];
-        # system = CVSystem(filename,restart);
-        # system.solverparams.numbeatstotal = numbeatstotal;
-        # calcbranchprops!(system,branches,restart);
-        # discretizebranches!(system,sys,restart);
-        # assignterminals!(system,term,restart);
-        # discretizeperiphery!(system);
-        # discretizeheart!(system);
-        # discretizelungs!(system);
-        # discretizecns!(system);
-        # applybranchics!(system,sys,restart);
-        # applyperipheryics!(system,sys,restart);
-        # applyheartics!(system,heart,restart);
-        # applylungics!(system,lungs,restart);
-        # applycnsics!(system,cns,restart);
-        # applyhemoics!(system,sys);
+        vars = MAT.matread(filename);
+        sys = vars["system"];
+        branches = sys["branches"];
+        term = branches["term"];
+        heart = sys["heart"];
+        lungs = sys["lungs"];
+        cns = sys["cns"];
+        system = CVModule.CVSystem(filename,restart);
+        system.solverparams.numbeatstotal = numbeatstotal;
+        CVModule.calcbranchprops!(system,branches,restart);
+        CVModule.discretizebranches!(system,sys,restart);
+        CVModule.assignterminals!(system,term,restart);
+        CVModule.discretizeperiphery!(system);
+        CVModule.discretizeheart!(system);
+        CVModule.discretizelungs!(system);
+        CVModule.discretizecns!(system);
+        CVModule.applybranchics!(system,sys,restart);
+        CVModule.applyperipheryics!(system,sys,restart);
+        CVModule.applyheartics!(system,heart,restart);
+        CVModule.applylungics!(system,lungs,restart);
+        CVModule.applycnsics!(system,cns,restart);
+        CVModule.applyhemoics!(system,sys);
     end
-    # updatevolumes!(system,0);
+    CVModule.updatevolumes!(system,0);
     return system
 end

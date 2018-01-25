@@ -18,9 +18,9 @@ function applybranchics!(system::CVSystem,old=Dict("a"=>0),restart="no")
                 A = branches["A"][i][end,:];
                 Q = branches["Q"][i][end,:];
                 P = branches["P"][i][end,:];
-                Aitp = interpolate(A, BSpline(Linear()), OnGrid());
-                Qitp = interpolate(Q, BSpline(Linear()), OnGrid());
-                Pitp = interpolate(P, BSpline(Linear()), OnGrid());
+                Aitp = Interpolations.interpolate(A, Interpolations.BSpline(Interpolations.Linear()), Interpolations.OnGrid());
+                Qitp = Interpolations.interpolate(Q, Interpolations.BSpline(Interpolations.Linear()), Interpolations.OnGrid());
+                Pitp = Interpolations.interpolate(P, Interpolations.BSpline(Interpolations.Linear()), Interpolations.OnGrid());
                 x = 0:1:(old["solverparams"]["JL"]-1);
                 x = x*branches["k"][1];
                 sAitp = scale(Aitp,x);
