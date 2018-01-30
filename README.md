@@ -11,11 +11,11 @@ After installation, open the `vascular_main.jl` script and set options:
     
 The above flags set whether or not to restart (in which case the `filename` variable must be set to the name of the restart file), to hemorrhage (set to perform a 10% hemorrhage and tourniquet application at the left femoral artery), and to save the solution. For the last option, the save file's name is set in the call to `matopen` near the end of the function:
 
-    file = matopen("savefile.mat", "w")
-    
+    file = MAT.matopen("savefile.mat", "w")
+
 To run a case for `N` cardiac cycles, set the keyword argument `numbeatstotal` in the call to the solution initialization function:
 
-    system = buildall(filename;numbeatstotal=N,restart=rstflag,injury=hemoflag);
+    system = CVModule.buildall(filename;numbeatstotal=N,restart=rstflag,injury=hemoflag);
     
 With the above options set, build the `vascular_main` script. Then run a case for `n` time steps from the Julia REPL:
 
