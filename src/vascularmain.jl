@@ -12,6 +12,11 @@ system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemof
 
 n = system.solverparams.nstart;
 
+ctx=ZMQ.Context();
+sender=ZMQ.Socket(ctx,ZMQ.REQ);
+
+ZMQ.connect(sender,"tcp://127.0.0.1:5555");
+
 tic();
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
     CVModule.predictorfluxes!(system,n);
@@ -28,11 +33,15 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     end
     CVModule.arterialpressure!(system,n);
     CVModule.regulateall!(system,n);
-    n+=1
+    CVModule.senddata(system,n,sender);
+    n+=1;
 end
-toc()
+toc();
 
 CVModule.updatevolumes!(system,n);
+
+ZMQ.close(sender)
+ZMQ.close(ctx)
 
 if saveflag == "yes"
     file = MAT.matopen("test.mat", "w")
