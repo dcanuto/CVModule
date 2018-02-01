@@ -7,10 +7,17 @@ filename = "arterytree.csv";
 rstflag = "no"
 hemoflag = "no"
 saveflag = "yes"
+coupleflag = "no"
 
 system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
 
 n = system.solverparams.nstart;
+
+if coupleflag == "yes"
+    ctx=ZMQ.Context();
+    sender=ZMQ.Socket(ctx,ZMQ.REQ);
+    ZMQ.connect(sender,"tcp://127.0.0.1:5555");
+end
 
 tic();
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
@@ -28,11 +35,19 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     end
     CVModule.arterialpressure!(system,n);
     CVModule.regulateall!(system,n);
-    n+=1
+    if coupleflag == "yes"
+        CVModule.senddata(system,n,sender);
+    end
+    n+=1;
 end
-toc()
+toc();
 
 CVModule.updatevolumes!(system,n);
+
+if coupleflag == "yes"
+    ZMQ.close(sender)
+    ZMQ.close(ctx)
+end
 
 if saveflag == "yes"
     file = MAT.matopen("test.mat", "w")

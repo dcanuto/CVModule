@@ -4,6 +4,7 @@ importall NumericalIntegration
 importall MAT
 importall Interpolations
 importall CSV
+importall ZMQ
 
 # conversion factors and solver parameters
 include("conversions.jl")
@@ -102,6 +103,9 @@ include("applytourniquet.jl")
 include("applyhemoics.jl")
 include("modelhemo.jl")
 
+# ZMQ message passing
+include("senddata.jl")
+
 export CVSystem
 export Heart
 export ArterialBranches
@@ -173,5 +177,6 @@ export updatediscretization!
 export applytourniquet!
 export modelhemo!
 export applyhemoics!
+export senddata
 
 end
