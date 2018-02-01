@@ -90,22 +90,52 @@ type ArterialBranches # 1D arterial domain
             # pull in artery data from text file
             temp = CVModule.loadtexttree(filename);
 
-            foreach((x)->push!(this.name,get(x)),temp[:Name])
-            foreach((x)->push!(this.parentname,get(x)),temp[:ParentName])
-            foreach((x)->push!(this.ID,get(x)),temp[:ID])
-            foreach((x)->push!(this.parentID,get(x)),temp[:parentID])
-            for i in 1:size(temp[:children_1],1)
-                push!(this.group,get(temp[i,:group],"NA"))
-                push!(this.children,[get(temp[i,:children_1],0)])
-                push!(this.children[i],get(temp[i,:children_2],0))
-                push!(this.children[i],get(temp[i,:children_3],0))
-                push!(this.children[i],get(temp[i,:children_4],0))
-                deleteat!(this.children[i],findin(this.children[i],0))
+            if is_windows()
+                foreach((x)->push!(this.name,get(x)),temp[:Name])
+                foreach((x)->push!(this.parentname,get(x)),temp[:ParentName])
+                foreach((x)->push!(this.ID,get(x)),temp[:ID])
+                foreach((x)->push!(this.parentID,get(x)),temp[:parentID])
+                for i in 1:size(temp[:children_1],1)
+                    push!(this.group,get(temp[i,:group],"NA"))
+                    push!(this.children,[get(temp[i,:children_1],0)])
+                    push!(this.children[i],get(temp[i,:children_2],0))
+                    push!(this.children[i],get(temp[i,:children_3],0))
+                    push!(this.children[i],get(temp[i,:children_4],0))
+                    deleteat!(this.children[i],findin(this.children[i],0))
+                end
+                foreach((x)->push!(this.lengthincm,get(x)),temp[:Length_cm])
+                foreach((x)->push!(this.radiusincm,get(x)),temp[:Radius_cm])
+                foreach((x)->push!(this.thicknessincm,get(x)),temp[:Thickness_cm])
+                foreach((x)->push!(this.YoungsModinMPa,get(x)),temp[:YoungsModulus_MPa])
+            elseif is_linux()
+                foreach((x)->push!(this.name,get(x)),Nullable(temp[:Name]))
+                foreach((x)->push!(this.parentname,get(x)),Nullable(temp[:ParentName]))
+                foreach((x)->push!(this.ID,get(x)),Nullable(temp[:ID]))
+                foreach((x)->push!(this.parentID,get(x)),Nullable(temp[:parentID]))
+                for i in 1:size(temp[:children_1],1)
+                    if !isa(temp[i,:group],Missings.Missing)
+                        push!(this.group,string(temp[i,:group]))
+                    else
+                        push!(this.group,"NA")
+                    end
+                    if !isa(temp[i,:children_1],Missings.Missing)
+                        push!(this.children,[temp[i,:children_1]])
+                    end
+                    if !isa(temp[i,:children_2],Missings.Missing)
+                        push!(this.children[i],temp[i,:children_2])
+                    end
+                    if !isa(temp[i,:children_3],Missings.Missing)
+                        push!(this.children[i],temp[i,:children_3])
+                    end
+                    if !isa(temp[i,:children_4],Missings.Missing)
+                        push!(this.children[i],temp[i,:children_4])
+                    end
+                end
+                foreach((x)->push!(this.lengthincm,get(x)),Nullable(temp[:Length_cm]))
+                foreach((x)->push!(this.radiusincm,get(x)),Nullable(temp[:Radius_cm]))
+                foreach((x)->push!(this.thicknessincm,get(x)),Nullable(temp[:Thickness_cm]))
+                foreach((x)->push!(this.YoungsModinMPa,get(x)),Nullable(temp[:YoungsModulus_MPa]))
             end
-            foreach((x)->push!(this.lengthincm,get(x)),temp[:Length_cm])
-            foreach((x)->push!(this.radiusincm,get(x)),temp[:Radius_cm])
-            foreach((x)->push!(this.thicknessincm,get(x)),temp[:Thickness_cm])
-            foreach((x)->push!(this.YoungsModinMPa,get(x)),temp[:YoungsModulus_MPa])
         elseif restart == "yes"
             this.W1root = old["W1root"];
             this.W2root = old["W2root"];
