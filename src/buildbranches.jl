@@ -110,12 +110,22 @@ type ArterialBranches # 1D arterial domain
             elseif is_linux()
                 this.name = [string(temp[1,:Name])]
                 this.parentname = [string(temp[1,:ParentName])]
+                this.ID = [temp[1,:ID]]
+                this.parentID = [temp[1,:parentID]]
+                this.lengthincm = [temp[1,:Length_cm]]
+                this.radiusincm = [temp[1,:Radius_cm]]
+                this.thicknessincm = [temp[1,:Thickness_cm]]
+                this.YoungsModinMPa = [temp[1,:YoungsModulus_MPa]]
                 for i = 2:length(temp[:Name])
                     push!(this.name,string(temp[i,:Name]))
                     push!(this.parentname,string(temp[i,:ParentName]))
+                    push!(this.ID,temp[i,:ID])
+                    push!(this.parentID,temp[i,:parentID])
+                    push!(this.lengthincm,temp[i,:Length_cm])
+                    push!(this.radiusincm,temp[i,:Radius_cm])
+                    push!(this.thicknessincm,temp[i,:Thickness_cm])
+                    push!(this.YoungsModinMPa,temp[i,:YoungsModulus_MPa])
                 end
-                foreach((x)->push!(this.ID,get(x)),Nullable(temp[:ID]))
-                foreach((x)->push!(this.parentID,get(x)),Nullable(temp[:parentID]))
                 for i in 1:size(temp[:children_1],1)
                     if !isa(temp[i,:group],Missings.Missing)
                         push!(this.group,string(temp[i,:group]))
@@ -135,10 +145,6 @@ type ArterialBranches # 1D arterial domain
                         push!(this.children[i],temp[i,:children_4])
                     end
                 end
-                foreach((x)->push!(this.lengthincm,get(x)),Nullable(temp[:Length_cm]))
-                foreach((x)->push!(this.radiusincm,get(x)),Nullable(temp[:Radius_cm]))
-                foreach((x)->push!(this.thicknessincm,get(x)),Nullable(temp[:Thickness_cm]))
-                foreach((x)->push!(this.YoungsModinMPa,get(x)),Nullable(temp[:YoungsModulus_MPa]))
             end
         elseif restart == "yes"
             this.W1root = old["W1root"];
