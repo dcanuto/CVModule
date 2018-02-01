@@ -134,6 +134,8 @@ type ArterialBranches # 1D arterial domain
                     end
                     if !isa(temp[i,:children_1],Missings.Missing)
                         push!(this.children,[temp[i,:children_1]])
+                    else
+                        push!(this.children,[])
                     end
                     if !isa(temp[i,:children_2],Missings.Missing)
                         push!(this.children[i],temp[i,:children_2])
