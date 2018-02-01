@@ -108,8 +108,12 @@ type ArterialBranches # 1D arterial domain
                 foreach((x)->push!(this.thicknessincm,get(x)),temp[:Thickness_cm])
                 foreach((x)->push!(this.YoungsModinMPa,get(x)),temp[:YoungsModulus_MPa])
             elseif is_linux()
-                foreach((x)->push!(this.name,x),string(temp[:Name]))
-                foreach((x)->push!(this.parentname,x),string(temp[:ParentName]))
+                this.name = [string(temp[1,:Name])]
+                this.parentname = [string(temp[1,:ParentName])]
+                for i = 2:length(temp[:Name])
+                    push!(this.name,string(temp[i,:Name]))
+                    push!(this.parentname,string(temp[i,:ParentName]))
+                end
                 foreach((x)->push!(this.ID,get(x)),Nullable(temp[:ID]))
                 foreach((x)->push!(this.parentID,get(x)),Nullable(temp[:parentID]))
                 for i in 1:size(temp[:children_1],1)
