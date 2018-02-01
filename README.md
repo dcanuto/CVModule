@@ -1,4 +1,4 @@
-# CardioModeling
+# CVModule
 Closed-loop model of the cardiovascular system with autonomic regulation. No fancy frills for interactive sessions yet (i.e., running a case requires manual changes to the `vascular_main.jl` function). To install:
 
     Pkg.clone("git://github.com/dcanuto/CardioModeling.git")
