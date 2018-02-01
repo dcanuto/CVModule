@@ -37,7 +37,7 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
     while N <= system.solverparams.maxiter
         # determine Jacobian, check invertibility
         JJ = J(xx,system,n,ID);
-        D = diagm(maximum!(zeros(length(xx)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(xx)),abs.(JJ)).^-1);
         # println(JJ)
         # println(D)
         # println(D*JJ)
@@ -63,7 +63,7 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
         # println(xn[1]*vs)
         # check if sufficiently close to root
         JJ = J(xn,system,n,ID);
-        D = diagm(maximum!(zeros(length(xx)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(xx)),abs.(JJ)).^-1);
         fvec = D*f(xn,system,n,ID);
         # println(fvec)
         if norm(fvec) <= system.solverparams.epsN

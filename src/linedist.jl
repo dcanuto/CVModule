@@ -41,7 +41,7 @@ function linedist(xold::Vector{Float64},fold::Float64,
         x = xold+alam*p;
         JJ = J(x,system,n,ID);
         # println(JJ)
-        D = diagm(maximum!(zeros(length(x)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(x)),abs.(JJ)).^-1);
         fvec = D*f(x,system,n,ID);
         # println(D)
         # println(fvec)

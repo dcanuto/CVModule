@@ -95,7 +95,7 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         # println(xx)
         # determine Jacobian, check invertibility
         JJ = J(xx,system,n,state);
-        D = diagm(maximum!(zeros(length(xx)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(xx)),abs.(JJ)).^-1);
         # println(JJ)
         # println(D)
         # println(D*JJ)
@@ -121,7 +121,7 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         # println(xn[1]*vs)
         # check if sufficiently close to root
         JJ = J(xn,system,n,state);
-        D = diagm(maximum!(zeros(length(xx)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(xx)),abs.(JJ)).^-1);
         fvec = D*f(xn,system,n,state);
         # println(fvec)
         if norm(fvec) <= system.solverparams.epsN*1000

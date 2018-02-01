@@ -62,7 +62,7 @@ function linesearch(xold::Vector{Float64},fold::Float64,
         # println(p)
         JJ = J(x,system,n,state);
         # println(JJ)
-        D = diagm(maximum!(zeros(length(x)),abs(JJ)).^-1);
+        D = diagm(maximum!(zeros(length(x)),abs.(JJ)).^-1);
         fvec = D*f(x,system,n,state);
         # println(D)
         # println(fvec)
