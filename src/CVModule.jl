@@ -23,6 +23,7 @@ include("buildvenacava.jl")
 include("buildlungs.jl")
 include("buildcns.jl")
 include("buildhemo.jl")
+include("buildpdata.jl")
 include("buildall.jl")
 
 # memory allocators for solution variables
@@ -109,6 +110,9 @@ include("modelhemo.jl")
 # ZMQ message passing
 include("senddata.jl")
 
+# patient data assimilation
+include("matchpdata.jl")
+
 export CVSystem
 export Heart
 export ArterialBranches
@@ -117,6 +121,7 @@ export VenaCava
 export Lungs
 export CNS
 export Hemorrhage
+export PatientData
 
 export loadtexttree
 export calcbranchprops!
@@ -181,5 +186,6 @@ export applytourniquet!
 export modelhemo!
 export applyhemoics!
 export senddata
+export matchpdata!
 
 end

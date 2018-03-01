@@ -6,6 +6,7 @@ type CVSystem # entire solution
     lungs::CVModule.Lungs
     hemo::CVModule.Hemorrhage
     cns::CVModule.CNS
+    pdata::CVModule.PatientData
     solverparams::CVModule.SolverParams
     t::Vector{Float64}
     arterialvolume::Float64
@@ -36,6 +37,7 @@ type CVSystem # entire solution
         this.lungs = CVModule.Lungs();
         this.cns = CVModule.CNS();
         this.hemo = CVModule.Hemorrhage();
+        this.pdata = CVModule.PatientData();
         this.solverparams = CVModule.SolverParams();
         this.t = Vector{Float64}[];
         return this
@@ -43,7 +45,7 @@ type CVSystem # entire solution
 end
 
 # build solution struct
-function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
+function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",assim="no")
     if restart == "no"
         system = CVModule.CVSystem(filename);
         system.solverparams.numbeatstotal = numbeatstotal;
@@ -83,6 +85,9 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         CVModule.applylungics!(system,lungs,restart);
         CVModule.applycnsics!(system,cns,restart);
         CVModule.applyhemoics!(system,sys);
+    end
+    if assim == "yes"
+        CVModule.matchpdata!(system);
     end
     CVModule.updatevolumes!(system,0);
     return system

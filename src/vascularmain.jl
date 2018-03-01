@@ -8,8 +8,10 @@ rstflag = "no"
 hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"
+assimflag = "yes"
 
-system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,
+    injury=hemoflag,assim=assimflag);
 
 n = system.solverparams.nstart;
 
@@ -37,6 +39,9 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     CVModule.regulateall!(system,n);
     if coupleflag == "yes"
         CVModule.senddata(system,n,sender);
+    end
+    if n > 0 && mod(n/system.pdata.nsamp,1) == 0
+        println(system.t[n+1])
     end
     n+=1;
 end
