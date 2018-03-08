@@ -2,12 +2,12 @@ importall CVModule
 
 function main()
 
-filename = "arterytree.csv";
-# filename = "uc6.mat";
-rstflag = "no"
+# filename = "arterytree.csv";
+filename = "test.mat";
+rstflag = "yes"
 hemoflag = "no"
 saveflag = "yes"
-coupleflag = "no"
+coupleflag = "yes"
 assimflag = "yes"
 
 system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,
@@ -55,7 +55,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test.mat", "w")
+    file = MAT.matopen("save.mat", "w")
     write(file, "system", system)
     close(file)
 end

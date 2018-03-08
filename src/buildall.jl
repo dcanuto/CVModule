@@ -50,7 +50,11 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
         system = CVModule.CVSystem(filename);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system);
-        CVModule.discretizebranches!(system);
+        if assim == "no"
+            CVModule.discretizebranches!(system);
+        elseif assim == "yes"
+            CVModule.discretizebranches!(system,Dict("a"=>0),restart,assim);
+        end
         CVModule.assignterminals!(system);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
@@ -73,7 +77,11 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
         system = CVModule.CVSystem(filename,restart);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system,branches,restart);
-        CVModule.discretizebranches!(system,sys,restart);
+        if assim == "no"
+            CVModule.discretizebranches!(system,sys,restart);
+        elseif assim == "yes"
+            CVModule.discretizebranches!(system,sys,restart,assim);
+        end
         CVModule.assignterminals!(system,term,restart);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
@@ -85,9 +93,6 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
         CVModule.applylungics!(system,lungs,restart);
         CVModule.applycnsics!(system,cns,restart);
         CVModule.applyhemoics!(system,sys);
-    end
-    if assim == "yes"
-        CVModule.matchpdata!(system);
     end
     CVModule.updatevolumes!(system,0);
     return system

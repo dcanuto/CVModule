@@ -1,4 +1,4 @@
-function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
+function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no",assim="no")
     h = [];
 
     # branch grid spacing
@@ -13,6 +13,9 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
     system.solverparams.h = minimum(h);
 
     if restart == "no"
+        if assim == "yes"
+            CVModule.matchpdata!(system);
+        end
         system.solverparams.numsteps = ceil(system.heart.activation.th[1]/
             system.solverparams.h);
 
@@ -77,6 +80,10 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
         end
 
         # update total number of time steps
+        if assim == "yes"
+            CVModule.matchpdata!(system);
+        end
+
         ntoadd = ceil((system.heart.activation.th[end]-
             system.solverparams.tshift)/system.solverparams.h);
         system.solverparams.numsteps=ntoadd;
