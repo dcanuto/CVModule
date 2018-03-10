@@ -113,6 +113,9 @@ include("senddata.jl")
 # patient data assimilation
 include("matchpdata.jl")
 
+# wrapper functions for parallelization
+include("advancetime.jl")
+
 export CVSystem
 export Heart
 export ArterialBranches
@@ -187,5 +190,6 @@ export modelhemo!
 export applyhemoics!
 export senddata
 export matchpdata!
+export advancetime!
 
 end
