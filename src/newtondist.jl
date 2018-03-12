@@ -103,11 +103,17 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
         N+=1;
         xx = xn;
         if N == system.solverparams.maxiter
+            println("Timestep number: ")
+            println(n)
+            println("Jacobian: ")
             println(JJ)
             # println(D)
             # println(D*JJ)
+            println("State vector: ")
             println(xn)
+            println("Value(s) of f: ")
             println(fvec)
+            println("Norm of f: ")
             println(norm(fvec))
             error("Newton iteration failed to converge.");
         end

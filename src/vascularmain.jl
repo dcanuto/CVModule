@@ -2,12 +2,12 @@ importall CVModule
 
 function main()
 
-rstflag = "no"
-hemoflag = "no"
-saveflag = "yes"
-coupleflag = "no"
-assimflag = "yes"
-ptbflag = "yes"
+rstflag = "yes" # restart from prior solution, filename format must follow fnames below
+hemoflag = "no" # 10% total blood vol. hemorrhage from left femoral artery
+saveflag = "yes" # save solution file to .mat struct
+coupleflag = "no" # coupling with 3D organ model via ZMQ
+assimflag = "yes" # patient data assimilation to tune model parameters
+ptbflag = "no" # random perturbation of blood volume distribution, ONLY USE ONCE
 
 ensemblesize = 2;
 if rstflag == "no"

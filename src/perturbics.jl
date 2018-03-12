@@ -12,10 +12,18 @@ function perturbics!(system::CVSystem)
     for i = 1:nptbs
         ptbidxs = shuffle(termidxs)[1:2];
         frac = rand()*fracmax;
-        for j = 1:length(system.branches.term[ptbidxs[1]].V[1,:])
+        for j = 2:length(system.branches.term[ptbidxs[1]].V[1,:])
             system.branches.term[ptbidxs[2]].V[1,j] +=
                 frac*system.branches.term[ptbidxs[1]].V[1,j];
             system.branches.term[ptbidxs[1]].V[1,j] *= (1-frac);
+            system.branches.term[ptbidxs[1]].P[1,j] =
+                1/system.branches.term[ptbidxs[1]].C[j]*
+                (system.branches.term[ptbidxs[1]].V[1,j]-
+                system.branches.term[ptbidxs[1]].V0[1]);
+            system.branches.term[ptbidxs[2]].P[1,j] =
+                1/system.branches.term[ptbidxs[2]].C[j]*
+                (system.branches.term[ptbidxs[2]].V[1,j]-
+                system.branches.term[ptbidxs[2]].V0[1]);
         end
     end
 
