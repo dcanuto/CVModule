@@ -10,7 +10,7 @@ saveflag = "yes"
 coupleflag = "no"
 assimflag = "yes"
 
-ensemblesize = 1;
+ensemblesize = 2;
 
 fnames = [filename for i=1:ensemblesize];
 
@@ -36,11 +36,12 @@ systems = pmap((a1,a2)->CVModule.updatevolumes!(a1,a2),systems,n);
 #     ZMQ.close(ctx)
 # end
 #
-# if saveflag == "yes"
-#     file = MAT.matopen("save.mat", "w")
-#     write(file, "system", system)
-#     close(file)
-# end
+if saveflag == "yes"
+    fnames = ["save_$i.mat" for i=1:ensemblesize];
+    files = pmap((a1,a2)->MAT.matopen(a1,a2),fnames,["w" for i=1:ensemblesize]);
+    pmap((a1,a2,a3)->write(a1,a2,a3),files,["system" for i=1:ensemblesize],systems);
+    pmap((a1)->close(a1),files);
+end
 
 return systems, n
 
