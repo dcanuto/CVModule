@@ -2,20 +2,26 @@ importall CVModule
 
 function main()
 
-filename = "arterytree.csv";
-# filename = "test.mat";
 rstflag = "no"
 hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"
 assimflag = "yes"
+ptbflag = "yes"
 
 ensemblesize = 2;
-
-fnames = [filename for i=1:ensemblesize];
+if rstflag == "no"
+    fnames = ["arterytree.csv" for i=1:ensemblesize];
+elseif rstflag == "yes"
+    fnames = ["save_$i.mat" for i=1:ensemblesize]
+end
 
 systems = pmap((a1)->CVModule.buildall(a1;numbeatstotal=1,restart=rstflag,
     injury=hemoflag,assim=assimflag),fnames);
+
+if ptbflag == "yes"
+    systems = pmap((a1)->CVModule.perturbics!(a1),systems);
+end
 
 n = [systems[1].solverparams.nstart for i=1:ensemblesize];
 
@@ -35,7 +41,7 @@ systems = pmap((a1,a2)->CVModule.updatevolumes!(a1,a2),systems,n);
 #     ZMQ.close(sender)
 #     ZMQ.close(ctx)
 # end
-#
+
 if saveflag == "yes"
     fnames = ["save_$i.mat" for i=1:ensemblesize];
     files = pmap((a1,a2)->MAT.matopen(a1,a2),fnames,["w" for i=1:ensemblesize]);
