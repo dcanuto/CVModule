@@ -17,10 +17,11 @@ function advancetime!(system::CVSystem,n::Int64;injury="no")
         # if coupleflag == "yes"
         #     CVModule.senddata(system,n,sender);
         # end
-        # if n > 0 && mod(n/system.pdata.nsamp,1) == 0
-        #     println(system.t[n+1])
-        # end
+        if mod(n/system.pdata.nsamp,1) == 0
+            n+=1
+            break
+        end
         n+=1;
     end
-    return system
+    return system, n
 end
