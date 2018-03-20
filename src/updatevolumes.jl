@@ -31,4 +31,5 @@ function updatevolumes!(system::CVSystem,n::Int64)
             system.peripheralvolume + system.vcvolume + system.heartvolume +
             system.lungvolume);
     end
+    return system
 end
