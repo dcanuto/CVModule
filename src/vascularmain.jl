@@ -2,64 +2,58 @@ importall CVModule
 
 function main()
 
-# filename = "arterytree.csv";
-filename = "test.mat";
-rstflag = "yes"
-hemoflag = "no"
-saveflag = "yes"
-coupleflag = "yes"
-assimflag = "yes"
+rstflag = "no" # restart from prior solution, filename format must follow fnames below
+hemoflag = "no" # 10% total blood vol. hemorrhage from left femoral artery
+saveflag = "no" # save solution file to .mat struct
+coupleflag = "no" # coupling with 3D organ model via ZMQ
+assimflag = "yes" # patient data assimilation via EnKF to tune model parameters
+ptbflag = "yes" # random perturbation of blood volume distribution, ONLY USE ONCE
 
-system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,
-    injury=hemoflag,assim=assimflag);
-
-n = system.solverparams.nstart;
-
-if coupleflag == "yes"
-    ctx=ZMQ.Context();
-    sender=ZMQ.Socket(ctx,ZMQ.REQ);
-    ZMQ.connect(sender,"tcp://127.0.0.1:5555");
+ensemblesize = 2;
+if rstflag == "no"
+    fnames = ["arterytree.csv" for i=1:ensemblesize];
+elseif rstflag == "yes"
+    fnames = ["converge_$i.mat" for i=1:ensemblesize]
 end
 
+systems = pmap((a1)->CVModule.buildall(a1;numbeatstotal=1,restart=rstflag,
+    injury=hemoflag,assim=assimflag),fnames);
+
+if ptbflag == "yes"
+    systems = pmap((a1)->CVModule.perturbics!(a1),systems);
+end
+
+n = [systems[1].solverparams.nstart for i=1:ensemblesize];
+
+# if coupleflag == "yes"
+#     ctx=ZMQ.Context();
+#     sender=ZMQ.Socket(ctx,ZMQ.REQ);
+#     ZMQ.connect(sender,"tcp://127.0.0.1:5555");
+# end
+
 tic();
-while system.solverparams.numbeats < system.solverparams.numbeatstotal
-    CVModule.predictorfluxes!(system,n);
-    CVModule.predictorstep!(system,n);
-    CVModule.correctorfluxes!(system,n);
-    CVModule.correctorstep!(system,n);
-    CVModule.applyendbcs!(system,n);
-    CVModule.splitinvariants!(system,n);
-    if hemoflag == "no"
-        CVModule.solvesplits!(system,n);
-    elseif hemoflag == "yes"
-        CVModule.solvesplits!(system,n,hemoflag);
-        CVModule.applytourniquet!(system,n);
-    end
-    CVModule.arterialpressure!(system,n);
-    CVModule.regulateall!(system,n);
-    if coupleflag == "yes"
-        CVModule.senddata(system,n,sender);
-    end
-    if n > 0 && mod(n/system.pdata.nsamp,1) == 0
-        println(system.t[n+1])
-    end
-    n+=1;
+while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
+    soln = pmap((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag),systems,n);
+    systems = [soln[i][1] for i in 1:length(soln)];
+    n = [soln[i][2] for i in 1:length(soln)];
+    println("Current time: $(systems[1].t[n[1]+1])")
 end
 toc();
 
-CVModule.updatevolumes!(system,n);
+systems = pmap((a1,a2)->CVModule.updatevolumes!(a1,a2),systems,n);
 
-if coupleflag == "yes"
-    ZMQ.close(sender)
-    ZMQ.close(ctx)
-end
+# if coupleflag == "yes"
+#     ZMQ.close(sender)
+#     ZMQ.close(ctx)
+# end
 
 if saveflag == "yes"
-    file = MAT.matopen("save.mat", "w")
-    write(file, "system", system)
-    close(file)
+    fnames = ["start_$i.mat" for i=1:ensemblesize];
+    files = pmap((a1,a2)->MAT.matopen(a1,a2),fnames,["w" for i=1:ensemblesize]);
+    pmap((a1,a2,a3)->write(a1,a2,a3),files,["system" for i=1:ensemblesize],systems);
+    map((a1)->close(a1),files);
 end
 
-return system, n
+return systems, n
 
 end

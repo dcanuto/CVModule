@@ -110,8 +110,12 @@ include("modelhemo.jl")
 # ZMQ message passing
 include("senddata.jl")
 
-# patient data assimilation
+# ensemble Kalman filter
 include("matchpdata.jl")
+include("perturbics.jl")
+
+# wrapper functions for parallelization
+include("advancetime.jl")
 
 export CVSystem
 export Heart
@@ -187,5 +191,7 @@ export modelhemo!
 export applyhemoics!
 export senddata
 export matchpdata!
+export advancetime!
+export perturbics!
 
 end
