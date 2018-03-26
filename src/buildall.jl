@@ -7,6 +7,7 @@ type CVSystem # entire solution
     hemo::CVModule.Hemorrhage
     cns::CVModule.CNS
     pdata::CVModule.PatientData
+    error::CVModule.AssimErrors
     solverparams::CVModule.SolverParams
     t::Vector{Float64}
     arterialvolume::Float64
@@ -38,6 +39,7 @@ type CVSystem # entire solution
         this.cns = CVModule.CNS();
         this.hemo = CVModule.Hemorrhage();
         this.pdata = CVModule.PatientData();
+        this.error = CVModule.AssimErrors();
         this.solverparams = CVModule.SolverParams();
         this.t = Vector{Float64}[];
         return this
@@ -54,6 +56,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
             CVModule.discretizebranches!(system);
         elseif assim == "yes"
             CVModule.discretizebranches!(system,Dict("a"=>0),restart,assim);
+            CVModule.discretizeerrors!(system);
         end
         CVModule.assignterminals!(system);
         CVModule.discretizeperiphery!(system);
@@ -81,6 +84,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
             CVModule.discretizebranches!(system,sys,restart);
         elseif assim == "yes"
             CVModule.discretizebranches!(system,sys,restart,assim);
+            CVModule.discretizeerrors!(system);
         end
         CVModule.assignterminals!(system,term,restart);
         CVModule.discretizeperiphery!(system);

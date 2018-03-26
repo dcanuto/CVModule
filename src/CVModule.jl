@@ -4,6 +4,7 @@ importall NumericalIntegration
 importall MAT
 importall Interpolations
 importall CSV
+importall Distributions
 importall ZMQ
 if is_linux()
     importall Missings
@@ -24,6 +25,7 @@ include("buildlungs.jl")
 include("buildcns.jl")
 include("buildhemo.jl")
 include("buildpdata.jl")
+include("builderrors.jl")
 include("buildall.jl")
 
 # memory allocators for solution variables
@@ -110,8 +112,9 @@ include("modelhemo.jl")
 # ZMQ message passing
 include("senddata.jl")
 
-# ensemble Kalman filter
+# data assimilation
 include("matchpdata.jl")
+include("discretizeerrors.jl")
 include("perturbics.jl")
 
 # wrapper functions for parallelization
@@ -126,6 +129,7 @@ export Lungs
 export CNS
 export Hemorrhage
 export PatientData
+export AssimErrors
 
 export loadtexttree
 export calcbranchprops!
@@ -193,5 +197,6 @@ export senddata
 export matchpdata!
 export advancetime!
 export perturbics!
+export discretizeErrors!
 
 end
