@@ -26,8 +26,14 @@ function perturbics!(system::CVSystem)
     #             system.branches.term[ptbidxs[2]].V0[1]);
     #     end
     # end
-    system.branches.beta[61][end] = rand(Truncated(Normal(9.13e7,system.error.pdev[1]),2.33e6,4.89e8));
-    system.branches.A0[61][end] = rand(Truncated(Normal(4.44e-5,system.error.pdev[2]),2.01e-6,6.61e-4));
+    # system.branches.beta[61][end] = rand(Normal(2.11e7,system.error.pdev[1]));
+    # system.branches.A0[61][end] = rand(Normal(2.46e-5,system.error.pdev[2]));
+
+    # system.branches.beta[61][end] = rand(Normal(4e7,system.error.pdev[1]));
+    system.branches.A0[61][end] = rand(Normal(1e-5,system.error.pdev[2]));
+
+    # system.branches.beta[61][end] = rand(Truncated(Normal(9.13e7,system.error.pdev[1]),2.33e6,4.89e8));
+    # system.branches.A0[61][end] = rand(Truncated(Normal(4.44e-5,system.error.pdev[2]),2.01e-6,6.61e-4));
     system.branches.A[61][1,:] = (70*mmHgToPa/system.branches.beta[61][end] +
         sqrt(system.branches.A0[61][end]))^2;
 

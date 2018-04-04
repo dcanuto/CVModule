@@ -5,7 +5,7 @@ type PatientData
 
     function PatientData()
         this = new();
-        this.dtsamp = 0.1;
+        this.dtsamp = 1/125;
         nsamp = 0;
         P = 0;
         return this

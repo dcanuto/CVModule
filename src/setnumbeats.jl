@@ -3,7 +3,7 @@ function setnumbeats!(system::CVSystem,n::Int64)
     ttotal = sum(system.heart.activation.th);
 
     # increment number of cycles if new cycle is starting
-    if system.t[n+2] >= ttotal
+    if (system.t[n+2] > ttotal) || (abs(ttotal - system.t[n+2]) < 1e-15) 
         system.solverparams.numbeats+=1;
     end
 end

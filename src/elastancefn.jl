@@ -6,6 +6,12 @@ function elastancefn!(system::CVSystem,n::Int64)
         tp = system.t[n+1];
     end
 
+    # workaround for numerical error induced by matching data sampling rate
+    if tp < 0
+        tp = 0;
+        println("tp negative. Setting to zero.")
+    end
+
     # heart activation function
     # if tp < system.heart.activation.tce[system.solverparams.numbeats+1]
     #     phi = (system.heart.activation.a*sin(π*tp/
