@@ -11,11 +11,13 @@ function applyperipheryics!(system::CVSystem,old=Dict("a"=>0),restart="no")
                 system.branches.term[i].V[1,1] = (
                 system.branches.term[i].P[1,1]*system.branches.term[i].C[1] +
                 system.branches.term[i].V0[1]);
-                system.branches.term[i].P[1,2] = 80*mmHgToPa;
+                # system.branches.term[i].P[1,2] = 80*mmHgToPa;
+                system.branches.term[i].P[1,2] = 40*mmHgToPa;
                 system.branches.term[i].V[1,2] = (
                 system.branches.term[i].P[1,2]*system.branches.term[i].C[2] +
                 system.branches.term[i].V0[2]);
-                system.branches.term[i].P[1,3] = 40*mmHgToPa;
+                # system.branches.term[i].P[1,3] = 40*mmHgToPa;
+                system.branches.term[i].P[1,3] = 20*mmHgToPa;
                 system.branches.term[i].V[1,3] = (
                 system.branches.term[i].P[1,3]*system.branches.term[i].C[3] +
                 system.branches.term[i].V0[3]);

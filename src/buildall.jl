@@ -69,6 +69,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no",a
         CVModule.applylungics!(system);
         CVModule.applycnsics!(system);
         CVModule.applycustomics!(system);
+        CVModule.applyhemoics!(system);
     elseif restart == "yes"
         vars = MAT.matread(filename);
         sys = vars["system"];

@@ -40,6 +40,16 @@ function newton!(system::CVSystem,n::Int64,parentID::Int64)
         end
         # update state vector
         xn = xx - inv(JJ)*f(xx,system,parentID,children);
+        # check for negative area (non-physical values)
+        if xn[2] < 0
+            error("Parent split area is negative. Parent ID: $parentID. Time step: $n.")
+        end
+        for i = 1:numchildren
+            if xn[2*i+2] < 0
+                error("Child split area is negative. Child ID: $(children[i]).
+                    Parent ID: $parentID. Time step: $n.")
+            end
+        end
         # check if sufficiently close to root
         if norm(f(xn,system,parentID,children)) <= system.solverparams.epsN
             x = xn;
@@ -55,7 +65,8 @@ function newton!(system::CVSystem,n::Int64,parentID::Int64)
         N+=1;
         xx = xn;
         if N == system.solverparams.maxiter
-            error("Newton iteration failed to converge.");
+            error("Newton iteration failed to converge. Parent ID: $parentID.
+                Time step: $n. Residual: $(norm(f(xn,system,parentID,children))).");
         end
     end
 

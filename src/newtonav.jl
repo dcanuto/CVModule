@@ -16,7 +16,7 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         zdot = system.heart.av.zeta[n+1]*system.heart.av.Kvc*
             (system.heart.lv.P[n+1]-system.branches.P[1][n+1,1]*mmHgToPa);
     end
-    if abs(zdot) <= 1e-7
+    if abs(zdot) <= 1e-6
         # println("dζ/dt under tolerance. Switching to reduced system.")
         x0 = zeros(2);
         if system.branches.Q[1][n+1,1] == 0
@@ -164,13 +164,23 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         N+=1;
         xx = xn;
         if N == system.solverparams.maxiter
-            println(JJ)
-            # println(D)
-            # println(D*JJ)
-            println(xn)
-            println(fvec)
-            println(norm(fvec))
-            error("Newton iteration failed to converge.");
+            A = ((2*system.solverparams.rho
+                /system.branches.beta[1][end])^2*((xn[1]*vs-system.branches.W2root)/8+
+                system.branches.c0[1][end])^4);
+            println("Proximal Jacobian: $JJ")
+            println("Normalized proximal state vector: $xn")
+            println("Proximal f: $fvec")
+            println("Norm of proximal f: $(norm(fvec))")
+            println("Aortic flow rate (cm3/s): $(A*0.5*(xn[1]*vs+system.branches.W2root)*1e6)")
+            println("Ventricular volume (cm3): $(xn[2]*Vs*1e6)")
+            println("Ventricular pressure (mmHg): $(system.heart.lv.P[n+1])")
+            println("Aortic root pressure (mmHg): $(system.branches.P[1][n+1,1])")
+            if length(xn) == 3
+                println("Aortic valve state: $(xn[3]*zs)")
+            else
+                println("Aortic valve state: $(system.heart.av.zeta[n+1])")
+            end
+            error("Proximal Newton iteration failed to converge. Time step: $n. Time: $(system.t[n+1]).");
         end
     end
 

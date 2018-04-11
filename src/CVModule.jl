@@ -116,6 +116,7 @@ include("senddata.jl")
 include("matchpdata.jl")
 include("discretizeerrors.jl")
 include("perturbics.jl")
+include("scalepdata.jl")
 
 # wrapper functions for parallelization
 include("advancetime.jl")
@@ -197,6 +198,7 @@ export senddata
 export matchpdata!
 export advancetime!
 export perturbics!
-export discretizeErrors!
+export discretizeerrors!
+export scalepdata!
 
 end
