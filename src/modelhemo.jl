@@ -1,14 +1,25 @@
 function modelhemo!(system::CVSystem,n::Int64,ID::Int64)
 
-    system.branches.A[ID][n+2,system.solverparams.JL] = (system.hemo.Ph/
-        system.branches.beta[ID][end]+sqrt(system.branches.A0[ID][end]))^2;
-    system.branches.W2[ID] = system.branches.W1[ID]-
-        8*((system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.beta[ID][end]/
-        (2*system.solverparams.rho))^2)^0.25-system.branches.c0[ID][end]);
-    system.branches.Q[ID][n+2,system.solverparams.JL] = 0.5*
-        system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.W1[ID]+
-        system.branches.W2[ID])
-
+    if ~isempty(system.branches.children[ID])
+        system.branches.A[ID][n+2,system.solverparams.JL] = (system.hemo.Ph/
+            system.branches.beta[ID][end]+sqrt(system.branches.A0[ID][end]))^2;
+        system.branches.W2[ID] = system.branches.W1[ID]-
+            8*((system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.beta[ID][end]/
+            (2*system.solverparams.rho))^2)^0.25-system.branches.c0[ID][end]);
+        system.branches.Q[ID][n+2,system.solverparams.JL] = 0.5*
+            system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.W1[ID]+
+            system.branches.W2[ID])
+    else
+        system.branches.A[ID][n+2,system.solverparams.JL] = (system.hemo.Ph/
+            system.branches.beta[ID][end]+sqrt(system.branches.A0[ID][end]))^2;
+        W2 = system.branches.W1end[ID]-
+            8*((system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.beta[ID][end]/
+            (2*system.solverparams.rho))^2)^0.25-system.branches.c0[ID][end]);
+        system.branches.Q[ID][n+2,system.solverparams.JL] = 0.5*
+            system.branches.A[ID][n+2,system.solverparams.JL]*(system.branches.W1[ID]+
+            W2)
+    end
+    
     system.hemo.Vloss += system.branches.Q[ID][n+2,system.solverparams.JL]*
         system.solverparams.h;
 
