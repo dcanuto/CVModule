@@ -1,6 +1,10 @@
-function applyendbcs!(system::CVSystem,n::Int64)
+function applyendbcs!(system::CVSystem,n::Int64,hemoflag="no")
     # update periphery
-    CVModule.coupledistal!(system,n);
+    if hemoflag == "no"
+        CVModule.coupledistal!(system,n);
+    elseif hemoflag == "yes"
+        CVModule.coupledistal!(system,n,hemoflag);
+    end  
     CVModule.updateterms!(system,n);
     CVModule.updatevc!(system,n);
 

@@ -14,8 +14,8 @@ type Hemorrhage
 
     function Hemorrhage()
         this = new()
-        this.hID = [41];
-        this.tID = [39,40];
+        this.hID = [14];
+        this.tID = [14];
         this.Amax = Array{Float64,1}[];
         this.Amin = Array{Float64,1}[];
         this.bmax = Array{Float64,1}[];

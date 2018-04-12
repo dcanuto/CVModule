@@ -5,7 +5,7 @@ function main()
 filename = "arterytree.csv";
 # filename = "uc6.mat";
 rstflag = "no"
-hemoflag = "no"
+hemoflag = "yes"
 saveflag = "yes"
 coupleflag = "no"
 
@@ -25,7 +25,11 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     CVModule.predictorstep!(system,n);
     CVModule.correctorfluxes!(system,n);
     CVModule.correctorstep!(system,n);
-    CVModule.applyendbcs!(system,n);
+    if hemoflag == "no"
+        CVModule.applyendbcs!(system,n);
+    elseif hemoflag == "yes"
+        CVModule.applyendbcs!(system,n,hemoflag);
+    end
     CVModule.splitinvariants!(system,n);
     if hemoflag == "no"
         CVModule.solvesplits!(system,n);
@@ -50,7 +54,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test.mat", "w")
+    file = MAT.matopen("hemo1.mat", "w")
     write(file, "system", system)
     close(file)
 end
