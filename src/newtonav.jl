@@ -173,7 +173,7 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
             println("Norm of proximal f: $(norm(fvec))")
             println("Aortic flow rate (cm3/s): $(A*0.5*(xn[1]*vs+system.branches.W2root)*1e6)")
             println("Ventricular volume (cm3): $(xn[2]*Vs*1e6)")
-            println("Ventricular pressure (mmHg): $(system.heart.lv.P[n+1])")
+            println("Ventricular pressure (mmHg): $(system.heart.lv.P[n+1]/mmHgToPa)")
             println("Aortic root pressure (mmHg): $(system.branches.P[1][n+1,1])")
             if length(xn) == 3
                 println("Aortic valve state: $(xn[3]*zs)")

@@ -117,6 +117,7 @@ include("matchpdata.jl")
 include("discretizeerrors.jl")
 include("perturbics.jl")
 include("scalepdata.jl")
+include("paramwalk.jl")
 
 # wrapper functions for parallelization
 include("advancetime.jl")
@@ -200,5 +201,6 @@ export advancetime!
 export perturbics!
 export discretizeerrors!
 export scalepdata!
+export paramwalk!
 
 end
