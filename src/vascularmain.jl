@@ -84,12 +84,37 @@ if assimflag == "yes"
     Ps = maximum(systems[1].pdata.P);
     θs = zeros(length(θhat));
 
+    # RTPS allocators
+    p = 0.95; # relaxation amount, ∃ [0.5, 0.95]
+    c = zeros(length(systems));
+    σb = zeros(length(xhat));
+    σa = σb;
+    σtb = zeros(length(θhat));
+    σta = σtb;
+
     # discretized times for determining ventricular elastance scaling
     t = linspace(0,systems[1].heart.activation.th[end],10000);
 end
 
 tic();
 while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
+    if n[1] == 0 && rstflag == "no"
+        Pd = 50; # estimated diastolic pressure, mmHg
+        Vdl = systems[1].heart.lv.V[1]/CVModule.cm3Tom3;
+        Vdr = systems[1].heart.lv.V[1]/CVModule.cm3Tom3;
+        for j = 1:length(systems)
+            for i = 61:64
+                # randomize initial areas to avoid σ = 0 for arterial area
+                Ps = rand(Distributions.Normal(Pd,1));
+                systems[j].branches.A[i][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[i][end] +
+                    sqrt(systems[j].branches.A0[i][end]))^2;
+            end
+            Vsl = rand(Distributions.Normal(Vdl,2.5));
+            Vsr = rand(Distributions.Normal(Vdr,2.5));
+            systems[j].heart.lv.V[1] = Vsl*CVModule.cm3Tom3;
+            systems[j].heart.rv.V[1] = Vsr*CVModule.cm3Tom3;
+        end
+    end
     rflag = "predict";
     soln = pmap((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
     systems = [soln[i][1] for i in 1:length(soln)];
@@ -110,17 +135,6 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             yi[i] = y + rand(Distributions.Normal(0,systems[i].error.odev[1]/Ps));
         end
 
-        # # ensemble forecast state
-        # X = [systems[i].branches.A[61][n[i]+1,:]/As for i in 1:length(soln)];
-        # for j = 62:64
-        #     for i = 1:length(soln)
-        #         append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As)
-        #     end
-        # end
-        # for i = 1:length(soln)
-        #     append!(X[i],[systems[i].heart.lv.V[n[i]+1],systems[i].heart.rv.V[n[i]+1]]/Vs)
-        # end
-
         # forecast parameters
         for i = 1:length(systems)
             for j = 1:numarteries
@@ -132,21 +146,10 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # parameter means
         for j = 61:64
             θs[j-60] = 0;
-            # p2bar = 0;
             for i = 1:length(soln)
                 θs[j-60] += systems[i].branches.beta[j][end];
-                # p2bar += systems[i].branches.A0[j][end];
             end
             θs[j-60] /= (ensemblesize);
-            # p2bar /= (ensemblesize);
-            # for i = 1:length(soln)
-            #     p1 = rand(Distributions.Normal(a*systems[i].branches.beta[j][end]+(1-a)*p1bar,h*systems[1].error.pdev[1]));
-            #     # p2 = rand(Distributions.Normal(a*systems[i].branches.A0[j][end]+(1-a)*p2bar,h*systems[1].error.pdev[2]));
-            #     # append!(X[i-1],[p2])
-            #     # append!(X[i],[p1/p1bar,p2/p2bar])
-            #     # append!(X[i],[p1/p1bar])
-            #     θ[i][j] = p1/p1bar;
-            # end
             for i = 1:length(soln)
                 systems[i].error.pbar[j-60] = θs[j-60];
             end
@@ -159,21 +162,20 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         for i = 1:length(soln)
             systems[i].error.pbar[end] = θs[end];
         end
-        # for i = 1:length(soln)
-        #     # p3 = rand(Distributions.Normal(a*systems[i].heart.activation.tau1+(1-a)*p3bar,h*systems[1].error.pdev[2]));
-        #     p3 = rand(Distributions.TruncatedNormal(a*systems[i].heart.activation.tau1+(1-a)*p3bar,h*systems[1].error.pdev[2],0.05,Inf));
-        #     # append!(X[i],[p3/p3bar,p4/p4bar])
-        #     # append!(X[i],[p3/p3bar])
-        #     θ[i][end] = p3/p3bar;
-        #     # println("Forecast normalized τ1, ensemble member $i: $(X[i][end])")
-        #     println("Forecast normalized τ1, ensemble member $i: $(θ[i][end])")
-        # end
 
         # forecast parameters
         θ = [CVModule.paramwalk!(systems[i],θ[i]) for i in 1:length(systems)];
         for i = 1:length(systems)
             println("Forecast parameters, member $i: $(θ[i])")
             θ[i] = θ[i]./θs;
+        end
+
+        # RTPS prior standard deviation
+        for i in 1:length(θ[1])
+            for j in 1:length(systems)
+                c[j] = θ[j][i];
+            end
+            σtb[i] = std(c;corrected=true);
         end
 
         # parameters back into model
@@ -211,15 +213,9 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         yhat = mean(Y);
         θhat = mean(θ);
         # println("Size of ̂x: $(size(xhat))")
-        # Phat[numassims+1] = yhat[end]*Ps;
         println("̂x, first forecast: $xhat")
         println("̂y, first forecast: $yhat")
         println("̂θ, first forecast: $θhat")
-        # println("̂β estimate: $(βhat[numassims+1,1])")
-        # # println("A0 estimate: $(A0hat[numassims+1,1])")
-        # println("τ1 estimate: $(τ1hat[numassims+1])")
-        # println("Brachial pressure estimate: $(Phat[numassims+1])")
-        # numassims+=1;
 
         # forecast params./meas. cross covariance, meas. covariance
         Pty = zeros(length(θhat),length(yhat))
@@ -245,7 +241,20 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             θ[i][:] += K*(yi[i] - Y[i]);
             # println("Normalized analysis τ1, ensemble member $i: $(θ[i][end])")
         end
-        println("Normalized analysis ̂θ: $(mean(θ))")
+        println("Normalized analysis ̂θ before RTPS inflation: $(mean(θ))")
+
+        # RTPS parameter covariance inflation
+        for i in 1:length(θ[1])
+            for j in 1:length(systems)
+                c[j] = θ[j][i];
+            end
+            σta[i] = std(c;corrected=true);
+        end
+        θhat = mean(θ);
+        for i = 1:length(soln)
+            θ[i][:] = θ[i][:] + p*((σtb-σta)./σta).*(θ[i][:]-θhat);
+        end
+        println("Normalized analysis ̂θ after RTPS inflation: $(mean(θ))")
 
         # analysis parameters back into ensemble members
         for i = 1:length(soln)
@@ -262,7 +271,6 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             g2 = (t/systems[i].heart.activation.tau2).^systems[i].heart.activation.m2;
             systems[i].heart.activation.k[end] = maximum((g1./(1+g1)).*(1./(1+g2)))^-1;
             # println("Analysis β, ensemble member $(i): $(systems[i].branches.beta[61][end])")
-            # println("Analysis A0, ensemble member $(i): $(systems[i].branches.A0[61][end])")
         end
         βhat[numassims+1,:] = systems[1].error.pbar[1:4];
         τ1hat[numassims+1] = systems[1].error.pbar[end];
@@ -282,6 +290,14 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             append!(X[i],[systems[i].heart.lv.V[n[i]+1],systems[i].heart.rv.V[n[i]+1]]/Vs)
         end
         println("Size of X, second forecast: $(size(X))")
+
+        # prior standard deviation
+        for i in 1:length(X[1])
+            for j in 1:length(systems)
+                c[j] = X[j][i];
+            end
+            σb[i] = std(c;corrected=true);
+        end
 
         # second forecast mean state, measurement
         xhat = mean(X);
@@ -310,19 +326,29 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
 
         # analysis step, NRR tracking
         for i = 1:length(soln)
-            # yi = y + rand(Distributions.Normal(0,systems[i].error.odev[1]/Ps));
             # println("Type of correction: $(typeof(K*(yi - Y[i-1])))")
             # println("Size of correction: $(size(K*(yi - Y[i-1])))")
             X[i][:] += K*(yi[i] - Y[i]);
-            # println("Analysis τ1, ensemble member $i: $(X[i][end])")
-            # if X[i][end] <= 0
-            #     println("Analysis τ1 non-positive, setting to lower bound.")
-            #     X[i][end] = 0.05/p3bar;
-            # end
             r2dot[i] += dot((Y[i]-yi),(Y[i]-yi));
         end
         r1dot += sqrt.(dot((yhat-y),(yhat-y)));
-        # println("Analysis X: $X")
+
+        # RTPS multiplicative covariance inflation
+        for i in 1:length(X[1])
+            for j in 1:length(systems)
+                c[j] = X[j][i];
+            end
+            σa[i] = std(c;corrected=true);
+        end
+        xhat = mean(X);
+        println("Prior standard deviation: $(σb)")
+        println("Posterior standard deviation: $(σa)")
+        println("Standard deviation difference: $(σb-σa)")
+        println("Normalized difference: $((σb-σa)./σa)")
+        for i = 1:length(soln)
+            X[i][:] = X[i][:] + p*((σb-σa)./σa).*(X[i][:]-xhat);
+            println("Analysis X, member $i: $(X[i])")
+        end
 
         # analysis back into ensemble members
         for i = 1:length(soln)
@@ -330,21 +356,9 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
                 startindex = systems[i].solverparams.JL*(j-1)+1;
                 endindex = systems[i].solverparams.JL*j;
                 systems[i].branches.A[60+j][n[i]+1,:] = X[i][startindex:endindex]*As;
-                # systems[i].branches.beta[60+j][end] = X[i][end-2*(numarteries-j)-1]*p1bar;
-                # systems[i].branches.A0[60+j][end] = X[i][end-2*(numarteries-j)]*p2bar;
-                # systems[i].branches.beta[60+j][end] = X[i][end-2*(numarteries-j)-3]*p1bar;
-                # systems[i].branches.beta[60+j][end] = X[i][end-(numarteries-j)-2]*p1bar;
-                # systems[i].branches.A0[60+j][end] = X[i][end-2*(numarteries-j)-2]*p2bar;
             end
             systems[i].heart.lv.V[n[i]+1] = X[i][endindex+1]*Vs;
             systems[i].heart.rv.V[n[i]+1] = X[i][endindex+2]*Vs;
-            # systems[i].heart.activation.tau1 = X[i][end]*p3bar;
-            # g1 = (t/systems[i].heart.activation.tau1).^systems[i].heart.activation.m1;
-            # g2 = (t/systems[i].heart.activation.tau2).^systems[i].heart.activation.m2;
-            # systems[i].heart.activation.k[end] = maximum((g1./(1+g1)).*(1./(1+g2)))^-1;
-            # println("Analysis area, ensemble member $(i): $(systems[i].branches.A[61][n[i]+1,:])")
-            # println("Analysis β, ensemble member $(i): $(systems[i].branches.beta[61][end])")
-            # println("Analysis A0, ensemble member $(i): $(systems[i].branches.A0[61][end])")
         end
 
         Phat[numassims+1] = yhat[end]*Ps;
