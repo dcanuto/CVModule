@@ -39,7 +39,7 @@ if assimflag == "yes"
     numarteries = 5;
     # allocators for ensemble augmented state, measurements
     # X = [zeros(numarteries*(systems[1].solverparams.JL + length(systems[1].error.pdev)-1)+3) for i in (1:length(systems))];
-    X = [zeros(numarteries*(systems[1].solverparams.JL)+2) for i in (1:length(systems))];
+    X = [zeros(2*numarteries*(systems[1].solverparams.JL)-1+2) for i in (1:length(systems))];
     θ = [zeros(length(systems[1].error.pdev)) for i in (1:length(systems))];
 
     # Y = [zeros(systems[1].solverparams.JL) for i in (1:length(systems)-1)];
@@ -47,7 +47,7 @@ if assimflag == "yes"
 
     # allocators for state, forecast measurement mean
     # xhat = zeros(numarteries*(systems[1].solverparams.JL + length(systems[1].error.pdev)-1)+3);
-    xhat = zeros(numarteries*(systems[1].solverparams.JL)+2);
+    xhat = zeros(2*numarteries*(systems[1].solverparams.JL)-1+2);
     θhat = zeros(length(systems[1].error.pdev));
     yhat = zeros(1);
 
@@ -79,6 +79,7 @@ if assimflag == "yes"
     end
 
     # non-dimensional scalings
+    Qs = zeros(2);
     As = zeros(2);
     As[1] = systems[1].branches.A[1][1,6];
     As[2] = systems[1].branches.A[61][1,6];
@@ -105,11 +106,13 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         Vdl = systems[1].heart.lv.V[1]/CVModule.cm3Tom3;
         Vdr = systems[1].heart.lv.V[1]/CVModule.cm3Tom3;
         for j = 1:length(systems)
+            systems[j].branches.Q[1][1,2:end] = rand(Distributions.Normal(0,1e-12),systems[j].solverparams.JL-1);
             for i = 61:64
                 # randomize initial areas to avoid σ = 0 for arterial area
                 Ps = rand(Distributions.Normal(Pd,1));
                 systems[j].branches.A[i][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[i][end] +
                     sqrt(systems[j].branches.A0[i][end]))^2;
+                systems[j].branches.Q[i][1,:] = rand(Distributions.Normal(0,1e-12),systems[j].solverparams.JL);
             end
             systems[j].branches.A[1][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[1][end] +
                 sqrt(systems[j].branches.A0[1][end]))^2;
@@ -208,10 +211,29 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # forecast state
         soln = map((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
         systems = [soln[i][1] for i in 1:length(soln)];
+        if systems[1].branches.Q[1][n[1]+1,6] < 1e-8;
+            Qs[1] = 1e-8;
+        else
+            Qs[1] = systems[1].branches.Q[1][n[1]+1,6];
+        end
+        if systems[1].branches.Q[61][n[1]+1,6] < 1e-8;
+            Qs[2] = 1e-8;
+        else
+            Qs[2] = systems[1].branches.Q[61][n[1]+1,6];
+        end
         X = [systems[i].branches.A[1][n[i]+1,:]/As[1] for i in 1:length(soln)];
         for j = 61:64
             for i = 1:length(soln)
                 append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As[2])
+            end
+        end
+        for i = 1:length(soln)
+            for j = 1:numarteries
+                if j == 1
+                    append!(X[i],systems[i].branches.Q[j][n[i]+1,2:end]/Qs[1])
+                else
+                    append!(X[i],systems[i].branches.Q[59+j][n[i]+1,:]/Qs[2])
+                end
             end
         end
         for i = 1:length(soln)
@@ -327,10 +349,29 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # corrected forecast w/ analysis parameters
         soln = map((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
         systems = [soln[i][1] for i in 1:length(soln)];
+        if systems[1].branches.Q[1][n[1]+1,6] < 1e-8;
+            Qs[1] = 1e-8;
+        else
+            Qs[1] = systems[1].branches.Q[1][n[1]+1,6];
+        end
+        if systems[1].branches.Q[61][n[1]+1,6] < 1e-8;
+            Qs[2] = 1e-8;
+        else
+            Qs[2] = systems[1].branches.Q[1][n[1]+1,6];
+        end
         X = [systems[i].branches.A[1][n[i]+1,:]/As[1] for i in 1:length(soln)];
         for j = 61:64
             for i = 1:length(soln)
                 append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As[2])
+            end
+        end
+        for i = 1:length(soln)
+            for j = 1:numarteries
+                if j == 1
+                    append!(X[i],systems[i].branches.Q[j][n[i]+1,2:end]/Qs[1])
+                else
+                    append!(X[i],systems[i].branches.Q[59+j][n[i]+1,:]/Qs[2])
+                end
             end
         end
         for i = 1:length(soln)
@@ -377,6 +418,7 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             # println("Type of correction: $(typeof(K*(yi - Y[i-1])))")
             # println("Size of correction: $(size(K*(yi - Y[i-1])))")
             X[i][:] += K*(yi[i] - Y[i]);
+            println("Analysis X before RTPS, member $i: $(X[i])")
             r2dot[i] += dot((Y[i]-yi),(Y[i]-yi));
         end
         r1dot += sqrt.(dot((yhat-y),(yhat-y)));
@@ -396,7 +438,7 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # println("σx difference = 0: $([(σb[i]-σa[i]) == 0 for i in 1:length(σb)])")
         for i = 1:length(soln)
             X[i][:] = X[i][:] + p*((σb-σa)./σa).*(X[i][:]-xhat);
-            # println("Analysis X, member $i: $(X[i])")
+            println("Analysis X after RTPS, member $i: $(X[i])")
         end
 
         # analysis back into ensemble members
@@ -410,6 +452,17 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
                     systems[i].branches.A[59+j][n[i]+1,:] = X[i][startindex:endindex]*As[2];
                 end
             end
+            for j = 1:numarteries
+                if j == 1
+                    startindex = numarteries*systems[i].solverparams.JL+systems[i].solverparams.JL*(j-1)+1;
+                    endindex = startindex+systems[i].solverparams.JL-2;
+                    systems[i].branches.Q[j][n[i]+1,2:end] = X[i][startindex:endindex]*Qs[1];
+                else
+                    startindex = numarteries*systems[i].solverparams.JL+systems[i].solverparams.JL*(j-1);
+                    endindex = startindex+systems[i].solverparams.JL-1;
+                    systems[i].branches.Q[59+j][n[i]+1,:] = X[i][startindex:endindex]*Qs[2];
+                end
+            end
             systems[i].heart.lv.V[n[i]+1] = X[i][endindex+1]*Vs;
             systems[i].heart.rv.V[n[i]+1] = X[i][endindex+2]*Vs;
         end
@@ -421,6 +474,18 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # output brachial pressure estimate
         Phat[numassims+1] = yhat[end]*Ps;
         println("Brachial pressure estimate: $(Phat[numassims+1])")
+        for i = 1:length(systems)
+            println("Aortic root pressure estimate, member $i: $(systems[i].branches.P[1][n[i]+1,1])")
+        end
+        for i = 1:length(systems)
+            println("LV pressure estimate, member $i: $(systems[i].heart.lv.P[n[i]+1]/CVModule.mmHgToPa)")
+        end
+        for i = 1:length(systems)
+            println("Aortic root flow estimate, member $i: $(systems[i].branches.Q[1][n[i]+1,1]/CVModule.cm3Tom3)")
+        end
+        for i = 1:length(systems)
+            println("Aortic root valve state estimate, member $i: $(systems[i].heart.av.zeta[n[i]+1])")
+        end
         numassims+=1;
     end
 end

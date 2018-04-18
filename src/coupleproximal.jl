@@ -7,6 +7,11 @@ function coupleproximal!(system::CVSystem,n::Int64)
         AV = "opening";
     elseif system.heart.lv.P[n+1]/mmHgToPa < system.branches.P[1][n+1,1]
         AV = "closing";
+    else
+        println("LV pressure: $(system.heart.lv.P[n+1]/mmHgToPa) mmHg")
+        println("Aortic root pressure: $(system.branches.P[1][n+1,1]) mmHg")
+        println("Aortic valve state: $(system.heart.av.zeta[n+1])")
+        error("AV state undefined. Time step: $n. Time: $(system.t[n+1]) s.")
     end
 
     if AV == "closed"
