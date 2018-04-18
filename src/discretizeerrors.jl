@@ -4,11 +4,14 @@ function discretizeerrors!(system::CVSystem)
     beta_dev = 2.11e6;
     a0_dev = 2.46e-6;
     t1_dev = 0.07;
-    numarteries = 4;
+    numarteries = 5;
 
     system.error.odev = [pressure_dev for i in 1:system.solverparams.JL];
     system.error.mdev = [area_dev for i in 1:system.solverparams.JL];
-    for i = 1:numarteries
+    # aortic β deviation
+    push!(system.error.pdev,beta_dev/10);
+    # brachial β deviation
+    for i = 2:numarteries
         push!(system.error.pdev,beta_dev);
     end
     # push!(system.error.pdev,a0_dev);
@@ -20,11 +23,17 @@ function discretizeerrors!(system::CVSystem)
     system.error.h = sqrt.(1-system.error.a^2);
 
     # parameter distribution initial mean estimates, bounds (if needed)
-    for i = 1:numarteries
+    # aorta
+    push!(system.error.lb,1e3);
+    push!(system.error.ub,Inf);
+    push!(system.error.pbar,2e6);
+    # brachial artery
+    for i = 2:numarteries
         push!(system.error.lb,1e3);
         push!(system.error.ub,Inf);
         push!(system.error.pbar,2e7);
     end
+    # τ1
     push!(system.error.lb,0.05);
     push!(system.error.ub,Inf);
     push!(system.error.pbar,0.2);

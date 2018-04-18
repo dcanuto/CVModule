@@ -4,4 +4,5 @@ function arterialpressure!(system::CVSystem,n::Int64)
             (system.branches.A[i][n+2,:].^0.5-
             sqrt(system.branches.A0[i][end]))/mmHgToPa;
     end
+    return system
 end

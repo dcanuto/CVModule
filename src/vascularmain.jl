@@ -36,7 +36,7 @@ n = [systems[1].solverparams.nstart for i=1:ensemblesize];
 # end
 
 if assimflag == "yes"
-    numarteries = 4;
+    numarteries = 5;
     # allocators for ensemble augmented state, measurements
     # X = [zeros(numarteries*(systems[1].solverparams.JL + length(systems[1].error.pdev)-1)+3) for i in (1:length(systems))];
     X = [zeros(numarteries*(systems[1].solverparams.JL)+2) for i in (1:length(systems))];
@@ -79,7 +79,9 @@ if assimflag == "yes"
     end
 
     # non-dimensional scalings
-    As = systems[1].branches.A[61][1,6];
+    As = zeros(2);
+    As[1] = systems[1].branches.A[1][1,6];
+    As[2] = systems[1].branches.A[61][1,6];
     Vs = systems[1].heart.lv.V[1];
     Ps = maximum(systems[1].pdata.P);
     θs = zeros(length(θhat));
@@ -109,6 +111,8 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
                 systems[j].branches.A[i][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[i][end] +
                     sqrt(systems[j].branches.A0[i][end]))^2;
             end
+            systems[j].branches.A[1][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[1][end] +
+                sqrt(systems[j].branches.A0[1][end]))^2;
             Vsl = rand(Distributions.Normal(Vdl,2.5));
             Vsr = rand(Distributions.Normal(Vdr,2.5));
             systems[j].heart.lv.V[1] = Vsl*CVModule.cm3Tom3;
@@ -138,20 +142,28 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # forecast parameters
         for i = 1:length(systems)
             for j = 1:numarteries
-                θ[i][j] = systems[i].branches.beta[60+j][end];
+                if j == 1
+                    θ[i][j] = systems[i].branches.beta[j][end];
+                else
+                    θ[i][j] = systems[i].branches.beta[59+j][end];
+                end
             end
             θ[i][end] = systems[i].heart.activation.tau1;
         end
 
         # parameter means
-        for j = 61:64
-            θs[j-60] = 0;
+        for j = 1:numarteries
+            θs[j] = 0;
             for i = 1:length(soln)
-                θs[j-60] += systems[i].branches.beta[j][end];
+                if j == 1
+                    θs[j] += systems[i].branches.beta[j][end];
+                else
+                    θs[j] += systems[i].branches.beta[59+j][end];
+                end
             end
-            θs[j-60] /= (ensemblesize);
+            θs[j] /= (ensemblesize);
             for i = 1:length(soln)
-                systems[i].error.pbar[j-60] = θs[j-60];
+                systems[i].error.pbar[j] = θs[j];
             end
         end
         θs[end] = 0;
@@ -181,7 +193,11 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # parameters back into model
         for i = 1:length(soln)
             for j = 1:numarteries
-                systems[i].branches.beta[60+j][end] = θ[i][j]*θs[j];
+                if j == 1
+                    systems[i].branches.beta[j][end] = θ[i][j]*θs[j];
+                else
+                    systems[i].branches.beta[59+j][end] = θ[i][j]*θs[j];
+                end
             end
             systems[i].heart.activation.tau1 = θ[i][end]*θs[end];
             g1 = (t/systems[i].heart.activation.tau1).^systems[i].heart.activation.m1;
@@ -192,10 +208,10 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # forecast state
         soln = map((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
         systems = [soln[i][1] for i in 1:length(soln)];
-        X = [systems[i].branches.A[61][n[i]+1,:]/As for i in 1:length(soln)];
-        for j = 62:64
+        X = [systems[i].branches.A[1][n[i]+1,:]/As[1] for i in 1:length(soln)];
+        for j = 61:64
             for i = 1:length(soln)
-                append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As)
+                append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As[2])
             end
         end
         for i = 1:length(soln)
@@ -262,11 +278,20 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         for i = 1:length(soln)
             # systems[i].error.pbar[:] = mean(θ).*θs;
             for j = 1:numarteries
-                systems[i].branches.beta[60+j][end] = θ[i][end-(numarteries-j)-1]*θs[j];
-                if systems[i].branches.beta[60+j][end] <= systems[i].error.lb[j]
-                    println("Warning: analysis β non-positive for artery $(60+j), member $i.
-                        Setting to lower bound of $(systems[i].error.lb[j]) Pa/m.")
-                    systems[i].branches.beta[60+j][end] = systems[i].error.lb[j];
+                if j == 1
+                    systems[i].branches.beta[j][end] = θ[i][end-(numarteries-j)-1]*θs[j];
+                    if systems[i].branches.beta[j][end] <= systems[i].error.lb[j]
+                        println("Warning: analysis β non-positive for artery $(j), member $i.
+                            Setting to lower bound of $(systems[i].error.lb[j]) Pa/m.")
+                        systems[i].branches.beta[j][end] = systems[i].error.lb[j];
+                    end
+                else
+                    systems[i].branches.beta[59+j][end] = θ[i][end-(numarteries-j)-1]*θs[j];
+                    if systems[i].branches.beta[59+j][end] <= systems[i].error.lb[j]
+                        println("Warning: analysis β non-positive for artery $(59+j), member $i.
+                            Setting to lower bound of $(systems[i].error.lb[j]) Pa/m.")
+                        systems[i].branches.beta[59+j][end] = systems[i].error.lb[j];
+                    end
                 end
             end
             systems[i].heart.activation.tau1 = θ[i][end]*θs[end];
@@ -282,7 +307,11 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         end
         for i = 1:length(soln)
             for j = 1:numarteries
-                βhat[numassims+1,j] += systems[i].branches.beta[60+j][end];
+                if j == 1
+                    βhat[numassims+1,j] += systems[i].branches.beta[j][end];
+                else
+                    βhat[numassims+1,j] += systems[i].branches.beta[59+j][end];
+                end
             end
             τ1hat[numassims+1] += systems[i].heart.activation.tau1;
         end
@@ -298,10 +327,10 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # corrected forecast w/ analysis parameters
         soln = map((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
         systems = [soln[i][1] for i in 1:length(soln)];
-        X = [systems[i].branches.A[61][n[i]+1,:]/As for i in 1:length(soln)];
-        for j = 62:64
+        X = [systems[i].branches.A[1][n[i]+1,:]/As[1] for i in 1:length(soln)];
+        for j = 61:64
             for i = 1:length(soln)
-                append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As)
+                append!(X[i],systems[i].branches.A[j][n[i]+1,:]/As[2])
             end
         end
         for i = 1:length(soln)
@@ -375,14 +404,19 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             for j = 1:numarteries
                 startindex = systems[i].solverparams.JL*(j-1)+1;
                 endindex = systems[i].solverparams.JL*j;
-                systems[i].branches.A[60+j][n[i]+1,:] = X[i][startindex:endindex]*As;
+                if j == 1
+                    systems[i].branches.A[j][n[i]+1,:] = X[i][startindex:endindex]*As[1];
+                else
+                    systems[i].branches.A[59+j][n[i]+1,:] = X[i][startindex:endindex]*As[2];
+                end
             end
             systems[i].heart.lv.V[n[i]+1] = X[i][endindex+1]*Vs;
             systems[i].heart.rv.V[n[i]+1] = X[i][endindex+2]*Vs;
         end
 
-        # recompute ventricular pressure to match updated volume, elastance
+        # recompute pressures to match updated state (needed for domain couplings)
         systems = map((a1,a2)->CVModule.elastancemodel!(a1,a2),systems,n);
+        systems = map((a1,a2)->CVModule.arterialpressure!(a1,a2),systems,n.-1);
 
         # output brachial pressure estimate
         Phat[numassims+1] = yhat[end]*Ps;
