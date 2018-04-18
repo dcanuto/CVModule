@@ -162,6 +162,16 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
             error("Newton iteration diverged.");
         end
         N+=1;
+        # check for non-physical valve state (ζ > 1 or ζ < 0)
+        if length(xx) == 3
+            if xx[3]*zs > 1
+                println("Warning: estimated ζ > 1.")
+                # xx[3] = 1/zs;
+            elseif xx[3]*zs < 0
+                println("Warning: estimated ζ < 0.")
+                # xx[3] = 0;
+            end
+        end
         xx = xn;
         if N == system.solverparams.maxiter
             A = ((2*system.solverparams.rho
@@ -176,9 +186,9 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
             println("Ventricular pressure (mmHg): $(system.heart.lv.P[n+1]/mmHgToPa)")
             println("Aortic root pressure (mmHg): $(system.branches.P[1][n+1,1])")
             if length(xn) == 3
-                println("Aortic valve state: $(xn[3]*zs)")
+                println("Estimated aortic valve state: $(xn[3]*zs)")
             else
-                println("Aortic valve state: $(system.heart.av.zeta[n+1])")
+                println("Aortic valve state (from last time step, using reduced system): $(system.heart.av.zeta[n+1])")
             end
             error("Proximal Newton iteration failed to converge. Time step: $n. Time: $(system.t[n+1]).");
         end

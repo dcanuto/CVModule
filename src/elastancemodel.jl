@@ -12,4 +12,6 @@ function elastancemodel!(system::CVSystem,n::Int64)
         system.heart.la.V[n+1] - system.heart.la.V0);
     system.heart.ra.P[n+1] = system.heart.ra.E*(
         system.heart.ra.V[n+1] - system.heart.ra.V0);
+
+    return system
 end

@@ -21,7 +21,7 @@ function discretizeerrors!(system::CVSystem)
 
     # parameter distribution initial mean estimates, bounds (if needed)
     for i = 1:numarteries
-        push!(system.error.lb,-Inf);
+        push!(system.error.lb,1e3);
         push!(system.error.ub,Inf);
         push!(system.error.pbar,2e7);
     end
