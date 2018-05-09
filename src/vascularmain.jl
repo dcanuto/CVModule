@@ -101,6 +101,7 @@ end
 
 tic();
 while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
+    # randomize initial state to avoid σ = 0
     if n[1] == 0 && rstflag == "no"
         Pd = 50; # estimated diastolic pressure, mmHg
         Vdl = systems[1].heart.lv.V[1]/CVModule.cm3Tom3;
@@ -108,7 +109,6 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         for j = 1:length(systems)
             systems[j].branches.Q[1][1,2:end] = rand(Distributions.Normal(0,1e-12),systems[j].solverparams.JL-1);
             for i = 61:64
-                # randomize initial areas to avoid σ = 0 for arterial area
                 Ps = rand(Distributions.Normal(Pd,1));
                 systems[j].branches.A[i][1,:] = (Ps*CVModule.mmHgToPa/systems[j].branches.beta[i][end] +
                     sqrt(systems[j].branches.A0[i][end]))^2;
@@ -122,10 +122,12 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             systems[j].heart.rv.V[1] = Vsr*CVModule.cm3Tom3;
         end
     end
+    # normal solver loop (breaks out when measurement is available)
     rflag = "predict";
     soln = pmap((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
     systems = [soln[i][1] for i in 1:length(soln)];
     n = [soln[i][2] for i in 1:length(soln)];
+    # data assimilation
     if assimflag == "yes" && mod((n[1]-1)/systems[1].pdata.nsamp,1) == 0
         rflag = "assim";
 
@@ -211,7 +213,7 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
         # forecast state
         soln = map((a1,a2)->CVModule.advancetime!(a1,a2;injury=hemoflag,runtype=rflag),systems,n);
         systems = [soln[i][1] for i in 1:length(soln)];
-        if systems[1].branches.Q[1][n[1]+1,6] < 1e-8;
+        if systems[1].branches.Q[1][n[1]+1,6] < 1e-8; # change Q scaling for small flow rate
             Qs[1] = 1e-8;
         else
             Qs[1] = systems[1].branches.Q[1][n[1]+1,6];
@@ -378,6 +380,9 @@ while systems[1].solverparams.numbeats < systems[1].solverparams.numbeatstotal
             append!(X[i],[systems[i].heart.lv.V[n[i]+1],systems[i].heart.rv.V[n[i]+1]]/Vs)
         end
         # println("Size of X, second forecast: $(size(X))")
+
+        # forecast measurements
+        Y = [systems[i].branches.P[61][n[i]+1,6]/Ps for i in 1:length(soln)];
 
         # prior standard deviation
         for i in 1:length(X[1])
