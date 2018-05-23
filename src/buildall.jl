@@ -4,6 +4,7 @@ type CVSystem # entire solution
     svc::CVModule.VenaCava
     ivc::CVModule.VenaCava
     lungs::CVModule.Lungs
+    liver::CVModule.Liver
     hemo::CVModule.Hemorrhage
     cns::CVModule.CNS
     solverparams::CVModule.SolverParams
@@ -13,6 +14,7 @@ type CVSystem # entire solution
     vcvolume::Float64
     heartvolume::Float64
     lungvolume::Float64
+    livervolume::Float64
     initialvolume::Float64
     finalvolume::Float64
 
@@ -34,6 +36,7 @@ type CVSystem # entire solution
         this.svc = CVModule.VenaCava();
         this.ivc = CVModule.VenaCava();
         this.lungs = CVModule.Lungs();
+        this.liver = CVModule.Liver();
         this.cns = CVModule.CNS();
         this.hemo = CVModule.Hemorrhage();
         this.solverparams = CVModule.SolverParams();
@@ -53,11 +56,13 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);
+        CVModule.discretizeliver!(system);
         CVModule.discretizecns!(system);
         CVModule.applybranchics!(system);
         CVModule.applyperipheryics!(system);
         CVModule.applyheartics!(system);
         CVModule.applylungics!(system);
+        CVModule.applyliverics!(system);
         CVModule.applycnsics!(system);
         CVModule.applycustomics!(system);
         CVModule.applyhemoics!(system);
@@ -68,6 +73,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         term = branches["term"];
         heart = sys["heart"];
         lungs = sys["lungs"];
+        liver = sys["liver"];
         cns = sys["cns"];
         system = CVModule.CVSystem(filename,restart);
         system.solverparams.numbeatstotal = numbeatstotal;
@@ -77,11 +83,13 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);
+        CVModule.discretizeliver!(system);
         CVModule.discretizecns!(system);
         CVModule.applybranchics!(system,sys,restart);
         CVModule.applyperipheryics!(system,sys,restart);
         CVModule.applyheartics!(system,heart,restart);
         CVModule.applylungics!(system,lungs,restart);
+        CVModule.applyliverics!(system,liver,restart);
         CVModule.applycnsics!(system,cns,restart);
         CVModule.applyhemoics!(system,sys);
     end

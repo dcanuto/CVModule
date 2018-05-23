@@ -21,6 +21,7 @@ include("buildbranches.jl")
 include("buildheart.jl")
 include("buildvenacava.jl")
 include("buildlungs.jl")
+include("buildliver.jl")
 include("buildcns.jl")
 include("buildhemo.jl")
 include("buildall.jl")
@@ -32,6 +33,7 @@ include("assignterminals.jl")
 include("discretizeperiphery.jl")
 include("discretizeheart.jl")
 include("discretizelungs.jl")
+include("discretizeliver.jl")
 include("discretizecns.jl")
 include("updatediscretization.jl")
 
@@ -40,6 +42,7 @@ include("applybranchics.jl")
 include("applyperipheryics.jl")
 include("applyheartics.jl")
 include("applylungics.jl")
+include("applyliverics.jl")
 include("applycnsics.jl")
 include("applycustomics.jl")
 
@@ -63,6 +66,7 @@ include("applyendbcs.jl")
 include("coupledistal.jl")
 include("endinvariants.jl")
 include("updateterms.jl")
+include("updateliver.jl")
 include("updatevc.jl")
 include("updaterh.jl")
 include("updatelungs.jl")
@@ -115,6 +119,7 @@ export ArterialBranches
 export SolverParams
 export VenaCava
 export Lungs
+export Liver
 export CNS
 export Hemorrhage
 
@@ -125,11 +130,13 @@ export assignterminals!
 export discretizeperiphery!
 export discretizeheart!
 export discretizelungs!
+export discretizeliver!
 export discretizecns!
 export applybranchics!
 export applyperipheryics!
 export applyheartics!
 export applylungics!
+export applyliverics!
 export applycnsics!
 export applycustomics!
 export elastancefn!
@@ -148,6 +155,7 @@ export linedist!
 export fdist
 export Jdist
 export updateterms!
+export updateliver!
 export updatevc!
 export updaterh!
 export updatelungs!

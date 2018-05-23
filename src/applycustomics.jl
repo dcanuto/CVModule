@@ -1,12 +1,12 @@
 function applycustomics!(system::CVSystem)
     # custom peripheral volumes for better initial blood distribution
-    system.branches.term[13].P[1,2] = 65*mmHgToPa;
+    system.branches.term[13].P[1,2] = 65*mmHgToPa; # gastric artery
     system.branches.term[13].V[1,2] = (system.branches.term[13].P[1,2]*
         system.branches.term[13].C[2] + system.branches.term[13].V0[2]);
     system.branches.term[13].P[1,3] = 32*mmHgToPa;
     system.branches.term[13].V[1,3] = (system.branches.term[13].P[1,3]*
         system.branches.term[13].C[3] + system.branches.term[13].V0[3]);
-    system.branches.term[14].P[1,2] = 73*mmHgToPa;
+    system.branches.term[14].P[1,2] = 73*mmHgToPa; # hepatic artery
     system.branches.term[14].V[1,2] = (system.branches.term[14].P[1,2]*
         system.branches.term[14].C[2] + system.branches.term[14].V0[2]);
     system.branches.term[14].P[1,3] = 36*mmHgToPa;
@@ -24,7 +24,7 @@ function applycustomics!(system::CVSystem)
     system.branches.term[18].P[1,3] = 38.5*mmHgToPa;
     system.branches.term[18].V[1,3] = (system.branches.term[18].P[1,3]*
         system.branches.term[18].C[3] + system.branches.term[18].V0[3]);
-    system.branches.term[21].P[1,2] = 60*mmHgToPa;
+    system.branches.term[21].P[1,2] = 60*mmHgToPa; # inferior mesenteric
     system.branches.term[21].V[1,2] = (system.branches.term[21].P[1,2]*
         system.branches.term[21].C[2] + system.branches.term[21].V0[2]);
     system.branches.term[21].P[1,3] = 30*mmHgToPa;

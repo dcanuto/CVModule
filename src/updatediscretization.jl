@@ -64,6 +64,10 @@ function updatediscretization!(system::CVSystem)
     system.lungs.Vv = [system.lungs.Vv;zeros(length(ttoadd[2:end]),2)];
     system.lungs.Qv = [system.lungs.Qv;zeros(length(ttoadd[2:end]),2)];
 
+    system.liver.P = [system.liver.P;zeros(length(ttoadd[2:end]),4)];
+    system.liver.V = [system.liver.V;zeros(length(ttoadd[2:end]),4)];
+    system.liver.Q = [system.liver.Q;zeros(length(ttoadd[2:end]),4)];
+
     append!(system.cns.H,zeros(length(ttoadd[2:end])));
     append!(system.cns.Emaxlv,zeros(length(ttoadd[2:end])));
     append!(system.cns.Emaxrv,zeros(length(ttoadd[2:end])));

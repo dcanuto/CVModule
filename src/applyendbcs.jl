@@ -4,9 +4,10 @@ function applyendbcs!(system::CVSystem,n::Int64,hemoflag="no")
         CVModule.coupledistal!(system,n);
     elseif hemoflag == "yes"
         CVModule.coupledistal!(system,n,hemoflag);
-    end  
+    end
     CVModule.updateterms!(system,n);
     CVModule.updatevc!(system,n);
+    CVModule.updateliver!(system,n);
 
     # update right heart
     CVModule.updaterh!(system,n);

@@ -19,6 +19,7 @@ function reflexpressure!(system::CVSystem,n::Int64)
         system.branches.P[89][system.cns.avgindexstart:system.cns.avgindexend,1]
         );
     push!(system.cns.Paverage,round(1/3*(avg1 + avg2 + avg3),1)*mmHgToPa);
+    println("Average baroreflex pressure over cardiac cycle: $(system.cns.Paverage[end]/mmHgToPa) mmHg")
 
     # beginning time step index for averaging
     system.cns.avgindexstart = system.cns.avgindexend;
