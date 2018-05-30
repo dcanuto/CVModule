@@ -30,8 +30,8 @@ type Lungs
         push!(this.Cv,74*cm3Tom3/mmHgToPa);
         this.La = 5e-5*mmHgToPa/cm3Tom3;
         this.Lv = 5e-5*mmHgToPa/cm3Tom3;
-        this.V0 = [50*cm3Tom3];
-        append!(this.V0,[30,53,75,75]*cm3Tom3);
+        this.V0 = [10*cm3Tom3];
+        append!(this.V0,[10,10,10,10]*cm3Tom3);
         this.Pp = Vector{Float64}[];
         this.Pa = Array{Float64,2}[];
         this.Va = Array{Float64,2}[];

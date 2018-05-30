@@ -3,7 +3,7 @@ importall CVModule
 function main()
 
 # filename = "arterytree.csv";
-filename = "test1.mat";
+filename = "test2.mat";
 rstflag = "yes"
 hemoflag = "no"
 saveflag = "yes"
@@ -54,7 +54,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test1.mat", "w")
+    file = MAT.matopen("test2.mat", "w")
     write(file, "system", system)
     close(file)
 end
