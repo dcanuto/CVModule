@@ -9,8 +9,8 @@ type Liver # lumped portal vein, sinusoid, hepatic veins
 
     function Liver()
         this = new()
-        this.R = [0.005*mmHgToPa/cm3Tom3];
-        append!(this.R,[0.01,0.01,0.01]*mmHgToPa/cm3Tom3);
+        this.R = [0.004*mmHgToPa/cm3Tom3];
+        append!(this.R,[0.005,0.005,0.004]*mmHgToPa/cm3Tom3);
         this.C = [3*cm3Tom3/mmHgToPa];
         append!(this.C,[10,15,45]*cm3Tom3/mmHgToPa);
         this.L = 5e-5*mmHgToPa/cm3Tom3;

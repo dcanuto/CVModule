@@ -6,7 +6,7 @@ function updatevc!(system::CVSystem,n::Int64)
     for i = 1:length(system.branches.ID)
         if isempty(system.branches.children[i])
             if system.branches.group[i] == "lower"
-                if i != 12 && i != 13 && i != 15 && i != 21 # skip portal vein inputs
+                if i != 12 && i != 13 && i != 14 && i != 15 && i != 21 # skip portal vein, hepatic vein inputs
                     ivcflow += system.branches.term[i].Q[n+1,5];
                 end
             else

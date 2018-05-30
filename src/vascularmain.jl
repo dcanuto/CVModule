@@ -2,9 +2,9 @@ importall CVModule
 
 function main()
 
-filename = "arterytree.csv";
-# filename = "test1.mat";
-rstflag = "no"
+# filename = "arterytree.csv";
+filename = "test1.mat";
+rstflag = "yes"
 hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"

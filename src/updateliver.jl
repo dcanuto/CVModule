@@ -22,7 +22,7 @@ function updateliver!(system::CVSystem,n::Int64)
     system.liver.V[n+2,3] = (system.liver.V[n+1,3]+
         system.solverparams.h*(system.liver.Q[n+1,2] - system.liver.Q[n+1,3]));
     system.liver.V[n+2,4] = (system.liver.V[n+1,4]+
-        system.solverparams.h*(system.liver.Q[n+1,3] - system.liver.Q[n+1,4]));
+        system.solverparams.h*(system.branches.term[14].Q[n+1,5] + system.liver.Q[n+1,3] - system.liver.Q[n+1,4]));
 
     # note pressure, flowrate updated algebraically except portal vein compartment
     system.liver.P[n+2,1] = (1/system.liver.C[1]*

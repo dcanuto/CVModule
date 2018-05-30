@@ -53,6 +53,14 @@ function updateterms!(system::CVSystem,n::Int64)
                         system.solverparams.h/system.branches.term[i].L[5]*(
                         system.branches.term[i].P[n+1,5]-
                         system.liver.P[n+1,1]));
+                elseif i == 14 # hepatic artery flows into hepatic veins
+                    system.branches.term[i].Q[n+2,5] = (
+                        (1 - system.branches.term[i].R[5]/
+                        system.branches.term[i].L[5]*system.solverparams.h)*
+                        system.branches.term[i].Q[n+1,5]+
+                        system.solverparams.h/system.branches.term[i].L[5]*(
+                        system.branches.term[i].P[n+1,5]-
+                        system.liver.P[n+1,4]));
                 elseif i == 21 # inferior mesenteric joins splenic
                     system.branches.term[i].Q[n+2,5] = (
                         (1 - system.branches.term[i].R[5]/

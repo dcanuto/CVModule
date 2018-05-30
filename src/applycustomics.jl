@@ -1,17 +1,53 @@
 function applycustomics!(system::CVSystem)
     # custom peripheral volumes for better initial blood distribution
-    system.branches.term[13].P[1,2] = 65*mmHgToPa; # gastric artery
+    system.branches.term[12].P[1,2] = 73*mmHgToPa; # splenic artery
+    system.branches.term[12].V[1,2] = (system.branches.term[12].P[1,2]*
+        system.branches.term[12].C[2] + system.branches.term[12].V0[2]);
+    system.branches.term[12].P[1,3] = 37.2*mmHgToPa;
+    system.branches.term[12].V[1,3] = (system.branches.term[12].P[1,3]*
+        system.branches.term[12].C[3] + system.branches.term[12].V0[3]);
+    system.branches.term[12].P[1,4] = 5.66*mmHgToPa;
+    system.branches.term[12].V[1,4] = (system.branches.term[12].P[1,4]*
+        system.branches.term[12].C[4] + system.branches.term[12].V0[4]);
+    system.branches.term[12].P[1,5] = 5.2*mmHgToPa;
+    system.branches.term[12].V[1,5] = (system.branches.term[12].P[1,5]*
+        system.branches.term[12].C[5] + system.branches.term[12].V0[5]);
+    system.branches.term[13].P[1,2] = 62*mmHgToPa; # gastric artery
     system.branches.term[13].V[1,2] = (system.branches.term[13].P[1,2]*
         system.branches.term[13].C[2] + system.branches.term[13].V0[2]);
-    system.branches.term[13].P[1,3] = 32*mmHgToPa;
+    system.branches.term[13].P[1,3] = 30.5*mmHgToPa;
     system.branches.term[13].V[1,3] = (system.branches.term[13].P[1,3]*
         system.branches.term[13].C[3] + system.branches.term[13].V0[3]);
-    system.branches.term[14].P[1,2] = 73*mmHgToPa; # hepatic artery
+    system.branches.term[13].P[1,4] = 5.46*mmHgToPa;
+    system.branches.term[13].V[1,4] = (system.branches.term[13].P[1,4]*
+        system.branches.term[13].C[4] + system.branches.term[13].V0[4]);
+    system.branches.term[13].P[1,5] = 5.09*mmHgToPa;
+    system.branches.term[13].V[1,5] = (system.branches.term[13].P[1,5]*
+        system.branches.term[13].C[5] + system.branches.term[13].V0[5]);
+    system.branches.term[14].P[1,2] = 69*mmHgToPa; # hepatic artery
     system.branches.term[14].V[1,2] = (system.branches.term[14].P[1,2]*
         system.branches.term[14].C[2] + system.branches.term[14].V0[2]);
-    system.branches.term[14].P[1,3] = 36*mmHgToPa;
+    system.branches.term[14].P[1,3] = 34.2*mmHgToPa;
     system.branches.term[14].V[1,3] = (system.branches.term[14].P[1,3]*
         system.branches.term[14].C[3] + system.branches.term[14].V0[3]);
+    system.branches.term[14].P[1,4] = 5.21*mmHgToPa;
+    system.branches.term[14].V[1,4] = (system.branches.term[14].P[1,4]*
+        system.branches.term[14].C[4] + system.branches.term[14].V0[4]);
+    system.branches.term[14].P[1,5] = 4.78*mmHgToPa;
+    system.branches.term[14].V[1,5] = (system.branches.term[14].P[1,5]*
+        system.branches.term[14].C[5] + system.branches.term[14].V0[5]);
+    system.branches.term[15].P[1,2] = 74*mmHgToPa; # superior mesenteric artery
+    system.branches.term[15].V[1,2] = (system.branches.term[15].P[1,2]*
+        system.branches.term[15].C[2] + system.branches.term[15].V0[2]);
+    system.branches.term[15].P[1,3] = 39*mmHgToPa;
+    system.branches.term[15].V[1,3] = (system.branches.term[15].P[1,3]*
+        system.branches.term[15].C[3] + system.branches.term[15].V0[3]);
+    system.branches.term[15].P[1,4] = 5.62*mmHgToPa;
+    system.branches.term[15].V[1,4] = (system.branches.term[15].P[1,4]*
+        system.branches.term[15].C[4] + system.branches.term[15].V0[4]);
+    system.branches.term[15].P[1,5] = 5.13*mmHgToPa;
+    system.branches.term[15].V[1,5] = (system.branches.term[15].P[1,5]*
+        system.branches.term[15].C[5] + system.branches.term[15].V0[5]);
     system.branches.term[16].P[1,2] = 78*mmHgToPa;
     system.branches.term[16].V[1,2] = (system.branches.term[16].P[1,2]*
         system.branches.term[16].C[2] + system.branches.term[16].V0[2]);
@@ -24,12 +60,18 @@ function applycustomics!(system::CVSystem)
     system.branches.term[18].P[1,3] = 38.5*mmHgToPa;
     system.branches.term[18].V[1,3] = (system.branches.term[18].P[1,3]*
         system.branches.term[18].C[3] + system.branches.term[18].V0[3]);
-    system.branches.term[21].P[1,2] = 60*mmHgToPa; # inferior mesenteric
+    system.branches.term[21].P[1,2] = 57.5*mmHgToPa; # inferior mesenteric
     system.branches.term[21].V[1,2] = (system.branches.term[21].P[1,2]*
         system.branches.term[21].C[2] + system.branches.term[21].V0[2]);
-    system.branches.term[21].P[1,3] = 30*mmHgToPa;
+    system.branches.term[21].P[1,3] = 28.4*mmHgToPa;
     system.branches.term[21].V[1,3] = (system.branches.term[21].P[1,3]*
         system.branches.term[21].C[3] + system.branches.term[21].V0[3]);
+    system.branches.term[21].P[1,4] = 5.62*mmHgToPa; # inferior mesenteric
+    system.branches.term[21].V[1,4] = (system.branches.term[21].P[1,4]*
+        system.branches.term[21].C[4] + system.branches.term[21].V0[4]);
+    system.branches.term[21].P[1,5] = 5.3*mmHgToPa;
+    system.branches.term[21].V[1,5] = (system.branches.term[21].P[1,5]*
+        system.branches.term[21].C[5] + system.branches.term[21].V0[5]);
     system.branches.term[23].P[1,2] = 60*mmHgToPa;
     system.branches.term[23].V[1,2] = (system.branches.term[23].P[1,2]*
         system.branches.term[23].C[2] + system.branches.term[23].V0[2]);
