@@ -105,13 +105,14 @@ include("reflexpressure.jl")
 include("cnsactivations.jl")
 include("regulateheart.jl")
 
-# hemorrhage/tourniquet application
+# systemic arterial hemorrhage/tourniquet application
 include("applytourniquet.jl")
 include("applyhemoics.jl")
-include("modelhemo.jl")
+include("model1dhemo.jl")
 
 # ZMQ message passing
 include("senddata.jl")
+include("sc.jl")
 
 export CVSystem
 export Heart
@@ -189,5 +190,6 @@ export applytourniquet!
 export modelhemo!
 export applyhemoics!
 export senddata
+export sc
 
 end

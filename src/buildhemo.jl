@@ -14,7 +14,7 @@ type Hemorrhage
 
     function Hemorrhage()
         this = new()
-        this.hID = [14];
+        this.hID = [14]; # hepatic artery ID is 14
         this.tID = [14];
         this.Amax = Array{Float64,1}[];
         this.Amin = Array{Float64,1}[];

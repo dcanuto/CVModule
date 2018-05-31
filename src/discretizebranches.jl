@@ -10,7 +10,10 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
     end
 
     # time step guaranteed to satisfy CFL for all branches
-    system.solverparams.h = minimum(h);
+    # system.solverparams.h = minimum(h);
+
+    # fix time step size to couple with 3D liver model
+    system.solverparams.h = 1e-4;
 
     if restart == "no"
         system.solverparams.numsteps = ceil(system.heart.activation.th[1]/

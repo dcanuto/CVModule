@@ -3,13 +3,13 @@ importall CVModule
 function main()
 
 # filename = "arterytree.csv";
-filename = "test2.mat";
+filename = "hemo2.mat";
 rstflag = "yes"
-hemoflag = "no"
+hemoflag = "yes"
 saveflag = "yes"
 coupleflag = "no"
 
-system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(filename;numbeatstotal=10,restart=rstflag,injury=hemoflag);
 
 n = system.solverparams.nstart;
 
@@ -35,7 +35,7 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
         CVModule.solvesplits!(system,n);
     elseif hemoflag == "yes"
         CVModule.solvesplits!(system,n,hemoflag);
-        CVModule.applytourniquet!(system,n);
+        # CVModule.applytourniquet!(system,n); # turn off to allow continual bleeding
     end
     CVModule.arterialpressure!(system,n);
     CVModule.regulateall!(system,n);
@@ -54,7 +54,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test2.mat", "w")
+    file = MAT.matopen("hemo3.mat", "w")
     write(file, "system", system)
     close(file)
 end

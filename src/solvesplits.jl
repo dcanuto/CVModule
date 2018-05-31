@@ -10,7 +10,7 @@ function solvesplits!(system::CVSystem,n::Int64,hemoflag="no")
             if ~isempty(system.branches.children[i]) && system.hemo.injured[i] == false
                 CVModule.newton!(system,n,i);
             elseif ~isempty(system.branches.children[i]) && system.hemo.injured[i] == true
-                CVModule.modelhemo!(system,n,i);
+                CVModule.model1dhemo!(system,n,i);
             end
         end
     end

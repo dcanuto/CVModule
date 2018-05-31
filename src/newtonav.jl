@@ -8,6 +8,9 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         zs = system.heart.av.zeta[n+1];
     end
 
+    # tolerance on dζ/dt (needs to be lower for higher HR)
+    tolz = 1e-7 + (0.8 - system.heart.activation.th[end])*2.5e-5;
+
     # initial guess
     if state == "opening"
         zdot = (1-system.heart.av.zeta[n+1])*system.heart.av.Kvo*
@@ -16,8 +19,9 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
         zdot = system.heart.av.zeta[n+1]*system.heart.av.Kvc*
             (system.heart.lv.P[n+1]-system.branches.P[1][n+1,1]*mmHgToPa);
     end
-    if abs(zdot) <= 1e-7
-        # println("dζ/dt under tolerance. Switching to reduced system.")
+    if abs(zdot) <= tolz
+        println("dζ/dt under tolerance at HR = $(60/system.heart.activation.th[end]) bpm. tol = $tolz.
+            ζ = $(system.heart.av.zeta[n+1]). Switching to reduced system.")
         x0 = zeros(2);
         if system.branches.Q[1][n+1,1] == 0
             x0[1] = -system.branches.W2root + 1e-7;
