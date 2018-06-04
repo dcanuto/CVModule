@@ -19,9 +19,9 @@ end
 
 function main()
 
-# filename = "arterytree.csv";j
-filename = "test2.mat";
-rstflag = "yes"
+filename = "arterytree.csv";
+# filename = "test2.mat";
+rstflag = "no"
 hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"
@@ -41,10 +41,31 @@ end
 tic();
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
     tic();
-    CVModule.predictorfluxes!(system,n);
-    CVModule.predictorstep!(system,n);
-    CVModule.correctorfluxes!(system,n);
-    CVModule.correctorstep!(system,n);
+    for i = 1:length(system.branches.ID)
+        CVModule.predictorfluxes!(system.branches.Fp[i],system.branches.Q[i][:,n+1],
+            system.branches.A[i][:,n+1],system.branches.beta[i][end],system.solverparams.rho,
+            system.solverparams.acols,system.solverparams.qcols);
+        CVModule.predictorstep!(system.branches.Aforward[i],system.branches.Qforward[i],
+            system.branches.Abackward[i],system.branches.Qbackward[i],
+            system.branches.A[i][:,n+1],system.branches.Q[i][:,n+1],
+            system.solverparams.h,system.branches.k[i],system.branches.Fp[i],
+            system.solverparams.colsint,system.solverparams.acolspre,system.solverparams.qcolspre,
+            system.solverparams.diffusioncoeff,system.solverparams.mu,system.solverparams.rho);
+        CVModule.correctorfluxes!(system.branches.Fbarforward[i],system.branches.Fbarbackward[i],
+            system.branches.Qforward[i],system.branches.Aforward[i],system.branches.Qbackward[i],
+            system.branches.Abackward[i],system.branches.beta[i][end],system.solverparams.rho,
+            system.solverparams.acolscor,system.solverparams.qcolscor);
+        ret1 = Array{Float64}(system.solverparams.JL-2);
+        ret2 = Array{Float64}(system.solverparams.JL-2);
+        CVModule.correctorstep!(ret1,ret2,
+            system.branches.A[i][:,n+1],system.branches.Q[i][:,n+1],system.branches.Fbarforward[i],
+            system.branches.Fbarbackward[i],system.branches.Qforward[i],system.branches.Aforward[i],
+            system.branches.Qbackward[i],system.branches.Abackward[i],system.solverparams.colsint,
+            system.solverparams.acolscor,system.solverparams.qcolscor,system.solverparams.h,system.branches.k[i],
+            system.solverparams.diffusioncoeff,system.solverparams.mu,system.solverparams.rho);
+        system.branches.A[i][system.solverparams.colsint,n+2] .= ret1;
+        system.branches.Q[i][system.solverparams.colsint,n+2] .= ret2;
+    end
     times.tfd += toq();
     tic();
     if hemoflag == "no"
@@ -81,7 +102,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test3.mat", "w")
+    file = MAT.matopen("col1.mat", "w")
     write(file, "system", system)
     close(file)
 end

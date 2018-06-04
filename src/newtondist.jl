@@ -117,10 +117,10 @@ function newtondist!(system::CVSystem,n::Int64,ID::Int64)
     system.branches.term[ID].V[n+2,1] = x[2];
     system.branches.term[ID].P[n+2,1] = 1/system.branches.term[ID].C[1]*(x[2]-
         system.branches.term[ID].V0[1]);
-    system.branches.A[ID][n+2,system.solverparams.JL] = (2*system.solverparams.rho/
+    system.branches.A[ID][system.solverparams.JL,n+2] = (2*system.solverparams.rho/
         system.branches.beta[ID][end])^2*((system.branches.W1end[ID]-x[1])/8+
         system.branches.c0[ID][end])^4;
-    system.branches.Q[ID][n+2,system.solverparams.JL] =
-        system.branches.A[ID][n+2,system.solverparams.JL]*0.5*
+    system.branches.Q[ID][system.solverparams.JL,n+2] =
+        system.branches.A[ID][system.solverparams.JL,n+2]*0.5*
         (system.branches.W1end[ID]+x[1]);
 end

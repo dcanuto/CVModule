@@ -4,12 +4,12 @@ function newton!(system::CVSystem,n::Int64,parentID::Int64)
 
     # initial guess state vector (flow rate/area pairs)
     x0 = zeros(2*numchildren+2);
-    x0[1] = system.branches.Q[parentID][n+1,system.solverparams.JL];
-    x0[2] = system.branches.A[parentID][n+1,system.solverparams.JL];
+    x0[1] = system.branches.Q[parentID][system.solverparams.JL,n+1];
+    x0[2] = system.branches.A[parentID][system.solverparams.JL,n+1];
     for i = 1:numchildren
         ID = system.branches.children[parentID][i];
-        x0[2*i+1] = system.branches.Q[ID][n+1,1];
-        x0[2*i+2] = system.branches.A[ID][n+1,1];
+        x0[2*i+1] = system.branches.Q[ID][1,n+1];
+        x0[2*i+2] = system.branches.A[ID][1,n+1];
     end
 
     # Newton iteration system of eqs. Jacobian based on junction type
@@ -60,11 +60,11 @@ function newton!(system::CVSystem,n::Int64,parentID::Int64)
     end
 
     # update junction using converged state vector
-    system.branches.Q[parentID][n+2,system.solverparams.JL] = x[1];
-    system.branches.A[parentID][n+2,system.solverparams.JL] = x[2];
+    system.branches.Q[parentID][system.solverparams.JL,n+2] = x[1];
+    system.branches.A[parentID][system.solverparams.JL,n+2] = x[2];
     for i = 1:numchildren
         ID = system.branches.children[parentID][i];
-        system.branches.Q[ID][n+2,1] = x[2*i+1];
-        system.branches.A[ID][n+2,1] = x[2*i+2];
+        system.branches.Q[ID][1,n+2] = x[2*i+1];
+        system.branches.A[ID][1,n+2] = x[2*i+2];
     end
 end

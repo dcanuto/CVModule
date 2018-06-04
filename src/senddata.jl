@@ -1,7 +1,7 @@
 function senddata(system::CVSystem,n::Int64,sender::Socket)
     # convert data to scientific notation to maintain precision
-    a,b=sc(system.branches.Q[14][n+1,11]);
-    c,d=sc(system.branches.P[14][n+1,11]);
+    a,b=sc(system.branches.Q[14][11,n+1]);
+    c,d=sc(system.branches.P[14][11,n+1]);
     e,f=sc(system.liver.Q[n+1,1]);
     g,h=sc(system.liver.P[n+1,1]);
 

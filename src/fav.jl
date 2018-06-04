@@ -30,7 +30,7 @@ function fav(x::Vector{Float64},system::CVSystem,n::Int64,state::String)
                 abs(system.heart.lv.V[n+1]/Vs-x[2])-zs*x[3]^2*system.heart.av.Ks*
                 system.heart.lv.E[n+2]*Vs^2*(x[2]-system.heart.lv.V0/Vs)*
                 (system.heart.lv.V[n+1]/Vs-x[2]))-
-                ts/Vs*x[3]*system.branches.Q[1][n+1,1]);
+                ts/Vs*x[3]*system.branches.Q[1][1,n+1]);
         else
             f2 = (x[3] - system.solverparams.h*((x[3])*system.heart.av.Kvc*
                 (system.heart.lv.E[n+2]*Vs*(x[2]-system.heart.lv.V0/Vs)-
@@ -46,7 +46,7 @@ function fav(x::Vector{Float64},system::CVSystem,n::Int64,state::String)
                 abs(system.heart.lv.V[n+1]/Vs-x[2])-zs*x[3]^2*system.heart.av.Ks*
                 system.heart.lv.E[n+2]*Vs^2*(x[2]-system.heart.lv.V0/Vs)*
                 (system.heart.lv.V[n+1]/Vs-x[2]))-
-                ts/Vs*x[3]*system.branches.Q[1][n+1,1]);
+                ts/Vs*x[3]*system.branches.Q[1][1,n+1]);
         end
         f = [f1,f2,f3];
     else
@@ -61,7 +61,7 @@ function fav(x::Vector{Float64},system::CVSystem,n::Int64,state::String)
             abs(system.heart.lv.V[n+1]/Vs-x[2])-zs*system.heart.av.Ks*
             system.heart.lv.E[n+2]*Vs^2*(x[2]-system.heart.lv.V0/Vs)*
             (system.heart.lv.V[n+1]/Vs-x[2]))-
-            ts/Vs*system.branches.Q[1][n+1,1]);
+            ts/Vs*system.branches.Q[1][1,n+1]);
         f = [f1,f3];
     end
 end

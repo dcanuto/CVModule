@@ -10,35 +10,35 @@ function endinvariants!(system::CVSystem,n::Int64)
     for i = 1:length(system.branches.ID)
         if isempty(system.branches.children[i])
             # forward wave speed
-            lf = (system.branches.Q[i][n+1,system.solverparams.JL]/
-                system.branches.A[i][n+1,system.solverparams.JL] +
+            lf = (system.branches.Q[i][system.solverparams.JL,n+1]/
+                system.branches.A[i][system.solverparams.JL,n+1] +
                 sqrt(0.5*system.branches.beta[i][end]/system.solverparams.rho)*
-                system.branches.A[i][n+1,system.solverparams.JL]^0.25);
+                system.branches.A[i][system.solverparams.JL,n+1]^0.25);
             # right-running invariants at current time
-            W1 = ([system.branches.Q[i][n+1,system.solverparams.JL-1]/
-                system.branches.A[i][n+1,system.solverparams.JL-1]+
+            W1 = ([system.branches.Q[i][system.solverparams.JL-1,n+1]/
+                system.branches.A[i][system.solverparams.JL-1,n+1]+
                 4*(sqrt(0.5*system.branches.beta[i][end]/
                 system.solverparams.rho)*
-                system.branches.A[i][n+1,system.solverparams.JL-1]^0.25 -
+                system.branches.A[i][system.solverparams.JL-1,n+1]^0.25 -
                 system.branches.c0[i][end])]);
-            push!(W1,system.branches.Q[i][n+1,system.solverparams.JL]/
-                system.branches.A[i][n+1,system.solverparams.JL]+
+            push!(W1,system.branches.Q[i][system.solverparams.JL,n+1]/
+                system.branches.A[i][system.solverparams.JL,n+1]+
                 4*(sqrt(0.5*system.branches.beta[i][end]/
                 system.solverparams.rho)*
-                system.branches.A[i][n+1,system.solverparams.JL]^0.25 -
+                system.branches.A[i][system.solverparams.JL,n+1]^0.25 -
                 system.branches.c0[i][end]));
             dW1 = (W1[2] - W1[1])/system.branches.k[i];
             # change in solution variables
-            dQ = ((system.branches.Q[i][n+1,system.solverparams.JL-1] -
-                system.branches.Q[i][n+1,system.solverparams.JL])/
+            dQ = ((system.branches.Q[i][system.solverparams.JL-1,n+1] -
+                system.branches.Q[i][system.solverparams.JL,n+1])/
                 system.branches.k[i]);
-            dA = ((system.branches.A[i][n+1,system.solverparams.JL-1] -
-                system.branches.A[i][n+1,system.solverparams.JL])/
+            dA = ((system.branches.A[i][system.solverparams.JL-1,n+1] -
+                system.branches.A[i][system.solverparams.JL,n+1])/
                 system.branches.k[i]);
             # interpolated solution variables
-            Qint = (system.branches.Q[i][n+1,system.solverparams.JL-1] -
+            Qint = (system.branches.Q[i][system.solverparams.JL-1,n+1] -
                 dQ*lf*system.solverparams.h);
-            Aint = (system.branches.A[i][n+1,system.solverparams.JL-1] -
+            Aint = (system.branches.A[i][system.solverparams.JL-1,n+1] -
                 dA*lf*system.solverparams.h);
             # update right-running invariant by linear interp.
             system.branches.W1end[i] = (W1[2] - dW1*lf*system.solverparams.h -

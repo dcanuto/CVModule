@@ -14,24 +14,24 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
     # initial guess
     if state == "opening"
         zdot = (1-system.heart.av.zeta[n+1])*system.heart.av.Kvo*
-            (system.heart.lv.P[n+1]-system.branches.P[1][n+1,1]*mmHgToPa);
+            (system.heart.lv.P[n+1]-system.branches.P[1][1,n+1]*mmHgToPa);
     else
         zdot = system.heart.av.zeta[n+1]*system.heart.av.Kvc*
-            (system.heart.lv.P[n+1]-system.branches.P[1][n+1,1]*mmHgToPa);
+            (system.heart.lv.P[n+1]-system.branches.P[1][1,n+1]*mmHgToPa);
     end
     if abs(zdot) <= tolz
         println("dζ/dt under tolerance at HR = $(60/system.heart.activation.th[end]) bpm. tol = $tolz.
             ζ = $(system.heart.av.zeta[n+1]). Switching to reduced system.")
         x0 = zeros(2);
-        if system.branches.Q[1][n+1,1] == 0
+        if system.branches.Q[1][1,n+1] == 0
             x0[1] = -system.branches.W2root + 1e-7;
         else
             x0[1] = system.branches.W1root;
         end
-        if system.branches.Q[1][n+1,1] != 0
+        if system.branches.Q[1][1,n+1] != 0
             x0[2] = (system.heart.lv.V[n+1] -
-                system.solverparams.h*system.branches.Q[1][n+1,1]);
-        elseif state == "opening" && system.branches.Q[1][n+1,1] == 0
+                system.solverparams.h*system.branches.Q[1][1,n+1]);
+        elseif state == "opening" && system.branches.Q[1][1,n+1] == 0
             x0[2] = system.heart.lv.V[n+1]
         end
 
@@ -42,22 +42,22 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
 
     else
         x0 = zeros(3);
-        if system.branches.Q[1][n+1,1] == 0
+        if system.branches.Q[1][1,n+1] == 0
             x0[1] = -system.branches.W2root + 1e-7;
         else
             x0[1] = system.branches.W1root;
         end
-        if system.branches.Q[1][n+1,1] != 0
+        if system.branches.Q[1][1,n+1] != 0
             x0[2] = (system.heart.lv.V[n+1] -
-                system.solverparams.h*system.branches.Q[1][n+1,1]);
-        elseif state == "opening" && system.branches.Q[1][n+1,1] == 0
+                system.solverparams.h*system.branches.Q[1][1,n+1]);
+        elseif state == "opening" && system.branches.Q[1][1,n+1] == 0
             x0[2] = system.heart.lv.V[n+1]
         end
         if system.heart.av.zeta[n+1] == 0
             x0[3] = zs;
         elseif state == "opening"
             x0[3] = system.heart.av.zeta[n+1] + system.solverparams.h*zdot;
-        elseif state == "closing" && abs(system.heart.lv.P[n+1]/mmHgToPa - system.branches.P[1][n+1,1]) < 20
+        elseif state == "closing" && abs(system.heart.lv.P[n+1]/mmHgToPa - system.branches.P[1][1,n+1]) < 20
             x0[3] = system.heart.av.zeta[n+1] + system.solverparams.h*zdot;
         elseif state == "closing"
             x0[3] = system.heart.av.zeta[n+1];
@@ -179,10 +179,10 @@ function newtonav!(system::CVSystem,n::Int64,state::String)
     end
 
     # update based on converged solution
-    system.branches.A[1][n+2,1] = ((2*system.solverparams.rho
+    system.branches.A[1][1,n+2] = ((2*system.solverparams.rho
         /system.branches.beta[1][end])^2*((x[1]-system.branches.W2root)/8+
         system.branches.c0[1][end])^4);
-    system.branches.Q[1][n+2,1] = 0.5*system.branches.A[1][n+2,1]*
+    system.branches.Q[1][1,n+2] = 0.5*system.branches.A[1][1,n+2]*
         (x[1]+system.branches.W2root);
     system.heart.lv.V[n+2] = x[2];
     if length(x) == 3

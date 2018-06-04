@@ -68,7 +68,7 @@ function Jav(x::Vector{Float64},system::CVSystem,n::Int64,state::String)
                 2*system.heart.av.Ks*system.heart.lv.E[n+2]*system.heart.av.Aann*ts*Vs*zs/
                 (system.solverparams.rho*system.heart.av.leff)*
                 (x[2]-system.heart.lv.V0/Vs)*(system.heart.lv.V[n+1]/Vs-x[2])*x[3]-
-                ts/Vs*system.branches.Q[1][n+1,1]);
+                ts/Vs*system.branches.Q[1][1,n+1]);
         else
             J33 = ((system.heart.lv.V[n+1]/Vs-x[2])*ts/system.solverparams.h-
                 system.heart.av.Aann*ts/(system.solverparams.rho*system.heart.av.leff*
@@ -76,7 +76,7 @@ function Jav(x::Vector{Float64},system::CVSystem,n::Int64,state::String)
                 2*system.heart.av.Ks*system.heart.lv.E[n+2]*system.heart.av.Aann*ts*Vs*zs/
                 (system.solverparams.rho*system.heart.av.leff)*
                 (x[2]-system.heart.lv.V0/Vs)*(system.heart.lv.V[n+1]/Vs-x[2])*x[3]-
-                ts/Vs*system.branches.Q[1][n+1,1]);
+                ts/Vs*system.branches.Q[1][1,n+1]);
         end
         J3 = [J31 J32 J33];
 

@@ -15,11 +15,11 @@ function updatediscretization!(system::CVSystem)
     # allocate additional space for solution variables
     for i = 1:length(system.branches.ID)
         system.branches.A[i] = [system.branches.A[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
+            zeros(system.solverparams.JL,length(ttoadd[2:end]))];
         system.branches.Q[i] = [system.branches.Q[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
+            zeros(system.solverparams.JL,length(ttoadd[2:end]))];
         system.branches.P[i] = [system.branches.P[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
+            zeros(system.solverparams.JL,length(ttoadd[2:end]))];
         if isempty(system.branches.children[i])
             system.branches.term[i].P = [system.branches.term[i].P;
                 zeros(length(ttoadd[2:end]),5)];
