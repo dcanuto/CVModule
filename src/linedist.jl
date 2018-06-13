@@ -1,12 +1,10 @@
-function linedist(xold::Vector{Float64},fold::Float64,
-    g::Vector{Float64},p::Vector{Float64},stpmax::Float64,
-    system::CVSystem,n::Int64,ID::Int64)
+function linedist(xold::Vector{Float64},fold::Float64,g::Vector{Float64},p::Vector{Float64},
+    stpmax::Float64,f::Function,J::Function,maxiter::Int16,V::Float64,Q::Float64,
+    Vs::Float64,vs::Float64,ts::Float64,V0::Float64,rho::Float64,beta::Float64,C::Float64,
+    W1end::Float64,c0::Float64,A0::Float64,h::Float64)
     alpha = 1e-4;
     tolx = 1e-7;
     check = false;
-
-    f = CVModule.fdist;
-    J = CVModule.Jdist;
 
     # scale if attempted step too large
     np = norm(p);
@@ -37,12 +35,12 @@ function linedist(xold::Vector{Float64},fold::Float64,
     alam = omega; # start w/ desired fraction of Newton step
     N = 1;
 
-    while N < system.solverparams.maxiter
+    while N < maxiter
         x = xold+alam*p;
-        JJ = J(x,system,n,ID);
+        JJ = J(x,Vs,vs,ts,C,W1end,c0,rho,beta,h);
         # println(JJ)
         D = diagm(maximum!(zeros(length(x)),abs.(JJ)).^-1);
-        fvec = D*f(x,system,n,ID);
+        fvec = D*f(x,V,Q,Vs,vs,ts,V0,rho,beta,C,W1end,c0,A0,h);
         # println(D)
         # println(fvec)
         fn = 0.5*dot(fvec,fvec);
@@ -89,9 +87,9 @@ function linedist(xold::Vector{Float64},fold::Float64,
         fn2 = fn;
         alam = max(tmplam,0.1*alam);
         N+=1;
-        if N == system.solverparams.maxiter
+        if N == maxiter
             println(xn)
-            println(f(xn,system,n,ID))
+            println(f(xn,V,Q,Vs,vs,ts,V0,rho,beta,C,W1end,c0,A0,h))
             error("Distal line search iteration failed to converge.");
         end
     end

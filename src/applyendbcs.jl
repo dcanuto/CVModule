@@ -1,9 +1,9 @@
-function applyendbcs!(system::CVSystem,n::Int64,hemoflag="no")
+function applyendbcs!(system::CVSystem,n::Int64,terms::Vector{Int64},hemoflag="no")
     # update periphery
     if hemoflag == "no"
-        CVModule.coupledistal!(system,n);
+        CVModule.coupledistal!(system,n,terms);
     elseif hemoflag == "yes"
-        CVModule.coupledistal!(system,n,hemoflag);
+        CVModule.coupledistal!(system,n,terms,hemoflag);
     end
     CVModule.updateterms!(system,n);
     CVModule.updatevc!(system,n);

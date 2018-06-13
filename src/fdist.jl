@@ -1,17 +1,13 @@
-function fdist(x::Vector{Float64},system::CVSystem,n::Int64,ID::Int64)
-    # non-dimensionalizing parameters
-    Vs = system.branches.term[ID].V[n+1,1];
-    vs = system.branches.c0[ID][end];
-    ts = system.branches.k[ID]/vs;
+function fdist(x::Vector{Float64},V::Float64,Q::Float64,Vs::Float64,vs::Float64,
+    ts::Float64,V0::Float64,rho::Float64,beta::Float64,C::Float64,W1end::Float64,
+    c0::Float64,A0::Float64,h::Float64)
 
-    f1 = x[2]-system.branches.term[ID].V0[1]/Vs-system.branches.beta[ID][end]*
-        system.branches.term[ID].C[1]/Vs*(vs^2*(2*system.solverparams.rho/
-        system.branches.beta[ID][end])*((system.branches.W1end[ID]/vs-x[1])/8+
-        system.branches.c0[ID][end]/vs)^2-sqrt(system.branches.A0[ID][end]));
-    f2 = (x[2]-system.branches.term[ID].V[n+1,1]/Vs)/system.solverparams.h*ts-
-        ts/Vs*(vs^5*(2*system.solverparams.rho/system.branches.beta[ID][end])^2*
-        ((system.branches.W1end[ID]/vs-x[1])/8+system.branches.c0[ID][end]/vs)^4*
-        0.5*(system.branches.W1end[ID]/vs+x[1]))+ts/Vs*system.branches.term[ID].Q[n+1,1];
+    f = zeros(2);
 
-    f = [f1,f2];
+    f[1] = x[2] .- V0./Vs .- beta.*C./Vs.*(vs.^2.*(2.*rho./beta).*((W1end./vs .- x[1])./8 .+
+        c0./vs).^2 .- sqrt.(A0));
+    f[2] = (x[2] .- V./Vs)./h.*ts .- ts./Vs.*(vs.^5.*(2.*rho./beta).^2.*((W1end./vs .- x[1])./8 .+
+        c0./vs).^4.*0.5.*(W1end./vs .+ x[1])) .+ ts/Vs.*Q;
+
+    return f
 end

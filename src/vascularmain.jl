@@ -19,19 +19,30 @@ end
 
 function main()
 
-filename = "arterytree.csv";
-# filename = "test2.mat";
-rstflag = "no"
+# filename = "arterytree.csv";
+filename = "test1.mat";
+rstflag = "yes"
 hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"
 
-system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+# build solution struct
+system = CVModule.buildall(filename;numbeatstotal=10,restart=rstflag,injury=hemoflag);
 
+# timers
 times = CVTimer();
+
+# collect all IDs of terminal branches
+terms = Int64[];
+for i = 1:length(system.branches.ID)
+    if isempty(system.branches.children[i])
+        push!(terms,i);
+    end
+end
 
 n = system.solverparams.nstart;
 
+# coupling to 3D liver model
 if coupleflag == "yes"
     ctx=ZMQ.Context();
     sender=ZMQ.Socket(ctx,ZMQ.REQ);
@@ -39,6 +50,7 @@ if coupleflag == "yes"
 end
 
 tic();
+# solver loop
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
     tic();
     for i = 1:length(system.branches.ID)
@@ -69,9 +81,9 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     times.tfd += toq();
     tic();
     if hemoflag == "no"
-        CVModule.applyendbcs!(system,n);
+        CVModule.applyendbcs!(system,n,terms);
     elseif hemoflag == "yes"
-        CVModule.applyendbcs!(system,n,hemoflag);
+        @time CVModule.applyendbcs!(system,n,terms,hemoflag);
     end
     times.tc += toq();
     tic();
@@ -102,7 +114,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("col1.mat", "w")
+    file = MAT.matopen("test1.mat", "w")
     write(file, "system", system)
     close(file)
 end
