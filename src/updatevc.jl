@@ -1,17 +1,15 @@
-function updatevc!(system::CVSystem,n::Int64)
+function updatevc!(system::CVSystem,n::Int64,terms::Vector{Int64})
     ivcflow = Float64(0);
     svcflow = Float64(0);
 
     # sum terminal/liver outflows
-    for i = 1:length(system.branches.ID)
-        if isempty(system.branches.children[i])
-            if system.branches.group[i] == "lower"
-                if i != 12 && i != 13 && i != 14 && i != 15 && i != 21 # skip portal vein, hepatic vein inputs
-                    ivcflow += system.branches.term[i].Q[n+1,5];
-                end
-            else
-                svcflow += system.branches.term[i].Q[n+1,5];
+    for i = 1:length(terms)
+        if system.branches.group[terms[i]] == "lower"
+            if terms[i] != 12 && terms[i] != 13 && terms[i] != 14 && terms[i] != 15 && terms[i] != 21 # skip portal vein, hepatic vein inputs
+                ivcflow += system.branches.term[terms[i]].Q[n+1,5];
             end
+        else
+            svcflow += system.branches.term[terms[i]].Q[n+1,5];
         end
     end
     ivcflow += system.liver.Q[n+1,4];

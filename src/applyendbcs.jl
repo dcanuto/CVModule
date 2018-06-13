@@ -5,8 +5,10 @@ function applyendbcs!(system::CVSystem,n::Int64,terms::Vector{Int64},hemoflag="n
     elseif hemoflag == "yes"
         CVModule.coupledistal!(system,n,terms,hemoflag);
     end
-    CVModule.updateterms!(system,n);
-    CVModule.updatevc!(system,n);
+    for i = 1:length(terms)
+        CVModule.updateterms!(system,n,terms[i]);
+    end
+    CVModule.updatevc!(system,n,terms);
     if hemoflag == "no"
         CVModule.updateliver!(system,n);
     elseif hemoflag == "yes" && system.hemo.hID[1] == 14 # hepatic artery severed => PV severed

@@ -1,4 +1,5 @@
-function rootinvariant!(system::CVSystem,n::Int64)
+function rootinvariant!(W2root::Vector{Float64},Q::Float64,A::Float64,Qp1::Float64,Ap1::Float64,
+    c0::Float64,beta::Float64,rho::Float64,mu::Float64,diff::Float64,k::Float64,h::Float64)
     lb = Float64;
     W2 = Vector{Float64}[];
     dW2 = Float64;
@@ -8,30 +9,18 @@ function rootinvariant!(system::CVSystem,n::Int64)
     Aint = Float64;
 
     # backward wave speed at proximal end
-    lb = (0.5*((system.branches.Q[1][2,n+1]/system.branches.A[1][2,n+1]-
-        sqrt(0.5*system.branches.beta[1][end]/system.solverparams.rho)*
-        system.branches.A[1][2,n+1]^0.25)+
-        (system.branches.Q[1][1,n+1]/system.branches.A[1][1,n+1]-
-        sqrt(0.5*system.branches.beta[1][end]/system.solverparams.rho)*
-        system.branches.A[1][1,n+1]^0.25)));
+    lb = 0.5.*((Qp1./Ap1 .- sqrt.(0.5.*beta./rho).*Ap1.^0.25) .+
+        (Q./A .- sqrt.(0.5.*beta./rho).*A.^0.25));
     # left-running invariant at current time
-    W2 = ([system.branches.Q[1][1,n+1]/system.branches.A[1][1,n+1]-
-        4*(sqrt(0.5*system.branches.beta[1][end]/system.solverparams.rho)*
-        system.branches.A[1][1,n+1]^0.25 - system.branches.c0[1][end])]);
-    push!(W2,system.branches.Q[1][2,n+1]/system.branches.A[1][2,n+1]-
-        4*(sqrt(0.5*system.branches.beta[1][end]/system.solverparams.rho)*
-        system.branches.A[1][2,n+1]^0.25 - system.branches.c0[1][end]))
-    dW2 = (W2[2] - W2[1])/system.branches.k[1];
+    W2 = [Q./A .- 4.*(sqrt.(0.5.*beta./rho).*A.^0.25 .- c0)];
+    push!(W2,Qp1./Ap1 .- 4.*(sqrt.(0.5.*beta./rho).*Ap1.^0.25 .- c0))
+    dW2 = (W2[2] .- W2[1])./k;
     # change in solution variables
-    dQ = ((system.branches.Q[1][2,n+1] - system.branches.Q[1][1,n+1])/
-        system.branches.k[1]);
-    dA = ((system.branches.A[1][2,n+1] - system.branches.A[1][1,n+1])/
-        system.branches.k[1]);
+    dQ = (Qp1 .- Q)./k;
+    dA = (Ap1 .- A)./k;
     # interpolated state variables
-    Qint = system.branches.Q[1][1,n+1] - dQ*lb*system.solverparams.h;
-    Aint = system.branches.A[1][1,n+1] - dA*lb*system.solverparams.h;
+    Qint = Q .- dQ.*lb.*h;
+    Aint = A .- dA.*lb.*h;
     # advance proximal boundary invariant
-    system.branches.W2root = (W2[1] - dW2*lb*system.solverparams.h-
-        system.solverparams.diffusioncoeff*system.solverparams.mu/
-        system.solverparams.rho*system.solverparams.h*(Qint/Aint^2));
+    W2root[1] = W2[1] .- dW2.*lb.*h .- diff.*mu./rho.*h.*(Qint./Aint.^2);
 end

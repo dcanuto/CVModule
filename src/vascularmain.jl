@@ -27,7 +27,7 @@ saveflag = "yes"
 coupleflag = "no"
 
 # build solution struct
-system = CVModule.buildall(filename;numbeatstotal=10,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
 
 # timers
 times = CVTimer();
@@ -83,7 +83,7 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     if hemoflag == "no"
         CVModule.applyendbcs!(system,n,terms);
     elseif hemoflag == "yes"
-        @time CVModule.applyendbcs!(system,n,terms,hemoflag);
+        CVModule.applyendbcs!(system,n,terms,hemoflag);
     end
     times.tc += toq();
     tic();
@@ -114,7 +114,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test1.mat", "w")
+    file = MAT.matopen("test2.mat", "w")
     write(file, "system", system)
     close(file)
 end
