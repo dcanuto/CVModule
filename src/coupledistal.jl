@@ -61,9 +61,9 @@ function coupledistal!(system::CVSystem,n::Int64,terms::Vector{Int64},hemoflag="
                     A0[1] = system.branches.A0[terms[i]][end];
                     c0[1] = system.branches.c0[terms[i]][end];
                     for i = 1:length(children)
-                        beta[i] = system.branches.beta[children[i]][end];
-                        A0[i] = system.branches.A0[children[i]][end];
-                        c0[i] = system.branches.c0[children[i]][end];
+                        beta[i+1] = system.branches.beta[children[i]][end];
+                        A0[i+1] = system.branches.A0[children[i]][end];
+                        c0[i+1] = system.branches.c0[children[i]][end];
                         W2[i] = system.branches.W2[children[i]];
                     end
                     CVModule.model1dhemo!(yout,children,system.hemo.Ph,beta,

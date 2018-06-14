@@ -11,7 +11,7 @@ function applyendbcs!(system::CVSystem,n::Int64,terms::Vector{Int64},hemoflag="n
     CVModule.updatevc!(system,n,terms);
     if hemoflag == "no"
         CVModule.updateliver!(system,n);
-    elseif hemoflag == "yes" && system.hemo.hID[1] == 14 # hepatic artery severed => PV severed
+    elseif hemoflag == "yes"
         CVModule.updateliver!(system,n,hemoflag);
     end
 

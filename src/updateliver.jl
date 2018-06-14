@@ -13,14 +13,14 @@ function updateliver!(system::CVSystem,n::Int64,hemoflag="no")
     # Euler forward update to liver
     system.liver.V[n+2,1] = (system.liver.V[n+1,1] + system.solverparams.h*(
         inflow - system.liver.Q[n+1,1]));
-    if hemoflag == "no"
+    if hemoflag == "no" || (hemoflag == "yes" && system.hemo.injured[14] == false) # hemorrhage not at HA
         system.liver.Q[n+2,1] = ((1 - system.liver.R[1]/system.liver.L*
             system.solverparams.h)*system.liver.Q[n+1,1]+
             system.solverparams.h/system.liver.L*(system.liver.P[n+1,1]-
             system.liver.P[n+1,2]));
         system.liver.V[n+2,2] = (system.liver.V[n+1,2]+
             system.solverparams.h*(system.liver.Q[n+1,1] - system.liver.Q[n+1,2]));
-    elseif hemoflag == "yes" # sever PV connection to sinusoids
+    elseif hemoflag == "yes" && system.hemo.injured[14] == true # sever PV connection to sinusoids if HA severed
         system.liver.Q[n+2,1] = ((1 - system.liver.R[1]/system.liver.L*
             system.solverparams.h)*system.liver.Q[n+1,1]+
             system.solverparams.h/system.liver.L*(system.liver.P[n+1,1]-
