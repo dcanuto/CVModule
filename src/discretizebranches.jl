@@ -10,7 +10,10 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
     end
 
     # time step guaranteed to satisfy CFL for all branches
-    system.solverparams.h = minimum(h);
+    # system.solverparams.h = minimum(h);
+
+    # fix time step size to couple with 3D liver model
+    system.solverparams.h = 1e-4;
 
     if restart == "no"
         system.solverparams.numsteps = ceil(system.heart.activation.th[1]/
@@ -19,11 +22,11 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
         # allocate space for 1D domain solution variables
         for i in 1:length(system.branches.ID)
             push!(system.branches.A,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.Q,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.P,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.Fp,
                 zeros(2*system.solverparams.JL));
             push!(system.branches.Fbarforward,
@@ -44,7 +47,7 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
         end
 
         # discretize time for first cardiac cycle
-        system.t = system.solverparams.h*[0:1:size(system.branches.A[1],1)-1;];
+        system.t = system.solverparams.h*[0:1:size(system.branches.A[1],2)-1;];
     elseif restart == "yes"
         # determine time shift
         temp = old["heart"];
@@ -88,11 +91,11 @@ function discretizebranches!(system::CVSystem,old=Dict("a"=>0),restart="no")
         # allocate space for 1D domain solution variables
         for i in 1:length(system.branches.ID)
             push!(system.branches.A,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.Q,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.P,
-                zeros(system.solverparams.numsteps+1,system.solverparams.JL));
+                zeros(system.solverparams.JL,system.solverparams.numsteps+1));
             push!(system.branches.Fp,
                 zeros(2*system.solverparams.JL));
             push!(system.branches.Fbarforward,

@@ -1,70 +1,57 @@
-function newton!(system::CVSystem,n::Int64,parentID::Int64)
-    children = system.branches.children[parentID];
+function newton!(iters::Vector{Int64},Q::Vector{Float64},A::Vector{Float64},
+    children::Vector{Int64},Qold::Vector{Float64},Aold::Vector{Float64},W::Vector{Float64},
+    beta::Vector{Float64},A0::Vector{Float64},c0::Vector{Float64},rho::Float64,
+    f::Function,J::Function,maxiter::Int16,maxval::Float64,epsJ::Float64,epsN::Float64)
+
     numchildren = length(children);
 
     # initial guess state vector (flow rate/area pairs)
     x0 = zeros(2*numchildren+2);
-    x0[1] = system.branches.Q[parentID][n+1,system.solverparams.JL];
-    x0[2] = system.branches.A[parentID][n+1,system.solverparams.JL];
+    xx = zeros(2*numchildren+2);
+    x0[1] = Qold[1];
+    x0[2] = Aold[1];
     for i = 1:numchildren
-        ID = system.branches.children[parentID][i];
-        x0[2*i+1] = system.branches.Q[ID][n+1,1];
-        x0[2*i+2] = system.branches.A[ID][n+1,1];
+        x0[2*i+1] = Qold[i+1];
+        x0[2*i+2] = Aold[i+1];
     end
 
-    # Newton iteration system of eqs. Jacobian based on junction type
-    if numchildren == 1
-        f = CVModule.fsingle;
-        J = CVModule.Jsingle;
-    elseif numchildren == 2
-        f = CVModule.fdouble;
-        J = CVModule.Jdouble;
-    elseif numchildren == 3
-        f = CVModule.ftriple;
-        J = CVModule.Jtriple;
-    elseif numchildren == 4
-        f = CVModule.fquad;
-        J = CVModule.Jquad;
-    end
-
-    xx = x0;
+    xx .= x0;
     x = zeros(length(x0));
     N = 1; # iteration counter
 
     # Newton iterations
-    while N <= system.solverparams.maxiter
+    while N <= maxiter
         # determine Jacobian, check invertibility
-        JJ = J(xx,system,parentID,children);
-        if abs(det(JJ)) < system.solverparams.epsJ
+        JJ = J(xx,beta,rho)
+        if abs(det(JJ)) < epsJ
             error("Newton Jacobian is singular.");
         end
         # update state vector
-        xn = xx - inv(JJ)*f(xx,system,parentID,children);
+        xn = xx - inv(JJ)*f(xx,beta,A0,rho,c0,W);
         # check if sufficiently close to root
-        if norm(f(xn,system,parentID,children)) <= system.solverparams.epsN
+        if norm(f(xn,beta,A0,rho,c0,W)) <= epsN
             x = xn;
             # println(x)
-            system.solverparams.totaliter+=N;
+            iters[1] += N;
             break
         end
         # check for divergence
-        if norm(f(xn,system,parentID,children)) >= system.solverparams.maxval
-            system.solverparams.totaliter+=N;
+        if norm(f(xn,beta,A0,rho,c0,W)) >= maxval
+            iters[1] += N;
             error("Newton iteration diverged.");
         end
         N+=1;
         xx = xn;
-        if N == system.solverparams.maxiter
+        if N == maxiter
             error("Newton iteration failed to converge.");
         end
     end
 
     # update junction using converged state vector
-    system.branches.Q[parentID][n+2,system.solverparams.JL] = x[1];
-    system.branches.A[parentID][n+2,system.solverparams.JL] = x[2];
+    Q[1] = x[1];
+    A[1] = x[2];
     for i = 1:numchildren
-        ID = system.branches.children[parentID][i];
-        system.branches.Q[ID][n+2,1] = x[2*i+1];
-        system.branches.A[ID][n+2,1] = x[2*i+2];
+        Q[i+1] = x[2*i+1];
+        A[i+1] = x[2*i+2];
     end
 end

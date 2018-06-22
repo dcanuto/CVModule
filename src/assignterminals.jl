@@ -16,9 +16,11 @@ function assignterminals!(system::CVSystem,old=Dict("a"=>0),restart="no")
     L5Total = 5e-5*mmHgToPa/cm3Tom3;
     V01 = 370*cm3Tom3;
     V02 = 370*cm3Tom3;
-    V03 = 401*cm3Tom3;
-    V04 = 596*cm3Tom3;
-    V05 = 1938*cm3Tom3;
+    V03 = 400*cm3Tom3;
+    # V04 = 596*cm3Tom3;
+    V04 = 500*cm3Tom3;
+    # V05 = 1938*cm3Tom3;
+    V05 = 1400*cm3Tom3;
 
     numterminals = 0;
     numlower = 0;

@@ -1,19 +1,23 @@
 function linesearch(xold::Vector{Float64},fold::Float64,
     g::Vector{Float64},p::Vector{Float64},stpmax::Float64,
-    system::CVSystem,n::Int64,state::String)
+    state::String,Vs::Float64,vs::Float64,ts::Float64,zs::Float64,
+    Vlv::Float64,zeta::Float64,Q::Float64,rho::Float64,beta::Float64,W2root::Float64,
+    c0::Float64,Kvo::Float64,Kvc::Float64,Ks::Float64,E::Float64,V0::Float64,
+    A0::Float64,Aann::Float64,leff::Float64,h::Float64,f::Function,J::Function,
+    maxiter::Int16)
     alpha = 1e-4;
     tolx = 1e-7;
     check = false;
-    Vs = 100*cm3Tom3;
-    vs = system.branches.c0[1][end];
-    if system.heart.av.zeta[n+1] == 0
-        zs = 1e-5;
-    else
-        zs = system.heart.av.zeta[n+1];
-    end
-
-    f = CVModule.fav;
-    J = CVModule.Jav;
+    # Vs = 100*cm3Tom3;
+    # vs = system.branches.c0[1][end];
+    # if system.heart.av.zeta[n+1] == 0
+    #     zs = 1e-5;
+    # else
+    #     zs = system.heart.av.zeta[n+1];
+    # end
+    #
+    # f = CVModule.fav;
+    # J = CVModule.Jav;
 
     # scale if attempted step too large
     np = norm(p);
@@ -43,13 +47,14 @@ function linesearch(xold::Vector{Float64},fold::Float64,
     omega = 1;
     alam = omega; # start w/ desired fraction of Newton step
     N = 1;
+    Plv = 0.;
+    Pao = 0.;
 
-    while N < system.solverparams.maxiter
+    while N < maxiter
         x = xold+alam*p;
-        Plv = system.heart.lv.E[n+2]*(x[2]*Vs-system.heart.lv.V0);
-        Pao = system.branches.beta[1][end]*((2*system.solverparams.rho/
-            system.branches.beta[1][end])*((x[1]*vs-system.branches.W2root)/8+
-            system.branches.c0[1][end])^2-sqrt(system.branches.A0[1][end]));
+        Plv = E.*(x[2].*Vs .- V0);
+        Pao = beta.*((2.*rho./beta).*((x[1].*vs .- W2root)./8 .+
+            c0).^2 .- sqrt.(A0));
         if Plv > Pao
             state = "opening";
         else
@@ -60,10 +65,12 @@ function linesearch(xold::Vector{Float64},fold::Float64,
         # println(xold)
         # println(alam)
         # println(p)
-        JJ = J(x,system,n,state);
+        JJ = J(x,Vs,vs,ts,zs,Vlv,zeta,Q,rho,beta,W2root,c0,Kvo,Kvc,Ks,E,V0,
+            A0,Aann,leff,h,state);
         # println(JJ)
         D = diagm(maximum!(zeros(length(x)),abs.(JJ)).^-1);
-        fvec = D*f(x,system,n,state);
+        fvec = D*f(x,Vs,vs,ts,zs,Vlv,zeta,Q,rho,beta,W2root,c0,Kvo,Kvc,Ks,E,V0,
+            A0,Aann,leff,h,state);
         # println(D)
         # println(fvec)
         fn = 0.5*dot(fvec,fvec);
@@ -110,9 +117,10 @@ function linesearch(xold::Vector{Float64},fold::Float64,
         fn2 = fn;
         alam = max(tmplam,0.1*alam);
         N+=1;
-        if N == system.solverparams.maxiter
+        if N == maxiter
             println(xn)
-            println(f(xn,system,n,state))
+            println(f(xn,Vs,vs,ts,zs,Vlv,zeta,Q,rho,beta,W2root,c0,Kvo,Kvc,Ks,E,V0,
+                A0,Aann,leff,h,state))
             error("Proximal line search iteration failed to converge.");
         end
     end

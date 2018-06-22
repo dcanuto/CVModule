@@ -1,6 +1,21 @@
 function senddata(system::CVSystem,n::Int64,sender::Socket)
-    ZMQ.send(sender, ZMQ.Message(string(system.branches.P[1][n+1,1])))
+    # convert data to scientific notation to maintain precision
+    a,b=sc(system.branches.Q[14][11,n+1]);
+    c,d=sc(system.branches.P[14][11,n+1]);
+    e,f=sc(system.liver.Q[n+1,1]);
+    g,h=sc(system.liver.P[n+1,1]);
+
+    # write data to IO buffer
+    io = IOBuffer();
+    write(io,string(a),string(" "),string(b),string(" "),string(c),string(" "),
+        string(d),string(" "),string(e),string(" "),string(f),string(" "),
+        string(g),string(" "),string(h),string(" "));
+
+    # send data, wait for confirmation of receipt
+    ZMQ.send(sender, Message(io))
     msg = ZMQ.recv(sender);
+
+    # print confirmation every 100 time steps
     if n % 100 == 0
         str = unsafe_string(msg);
         print("Received ")

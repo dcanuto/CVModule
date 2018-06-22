@@ -14,19 +14,13 @@ function updatediscretization!(system::CVSystem)
 
     # allocate additional space for solution variables
     for i = 1:length(system.branches.ID)
-        system.branches.A[i] = [system.branches.A[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
-        system.branches.Q[i] = [system.branches.Q[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
-        system.branches.P[i] = [system.branches.P[i];
-            zeros(length(ttoadd[2:end]),system.solverparams.JL)];
+        system.branches.A[i] = [system.branches.A[i] zeros(system.solverparams.JL,length(ttoadd[2:end]))];
+        system.branches.Q[i] = [system.branches.Q[i] zeros(system.solverparams.JL,length(ttoadd[2:end]))];
+        system.branches.P[i] = [system.branches.P[i] zeros(system.solverparams.JL,length(ttoadd[2:end]))];
         if isempty(system.branches.children[i])
-            system.branches.term[i].P = [system.branches.term[i].P;
-                zeros(length(ttoadd[2:end]),5)];
-            system.branches.term[i].V = [system.branches.term[i].V;
-                zeros(length(ttoadd[2:end]),5)];
-            system.branches.term[i].Q = [system.branches.term[i].Q;
-                zeros(length(ttoadd[2:end]),5)];
+            system.branches.term[i].P = [system.branches.term[i].P;zeros(length(ttoadd[2:end]),5)];
+            system.branches.term[i].V = [system.branches.term[i].V;zeros(length(ttoadd[2:end]),5)];
+            system.branches.term[i].Q = [system.branches.term[i].Q;zeros(length(ttoadd[2:end]),5)];
         end
     end
 
@@ -63,6 +57,10 @@ function updatediscretization!(system::CVSystem)
     system.lungs.Pv = [system.lungs.Pv;zeros(length(ttoadd[2:end]),2)];
     system.lungs.Vv = [system.lungs.Vv;zeros(length(ttoadd[2:end]),2)];
     system.lungs.Qv = [system.lungs.Qv;zeros(length(ttoadd[2:end]),2)];
+
+    system.liver.P = [system.liver.P;zeros(length(ttoadd[2:end]),4)];
+    system.liver.V = [system.liver.V;zeros(length(ttoadd[2:end]),4)];
+    system.liver.Q = [system.liver.Q;zeros(length(ttoadd[2:end]),4)];
 
     append!(system.cns.H,zeros(length(ttoadd[2:end])));
     append!(system.cns.Emaxlv,zeros(length(ttoadd[2:end])));

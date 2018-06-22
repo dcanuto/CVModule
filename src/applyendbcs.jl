@@ -1,12 +1,19 @@
-function applyendbcs!(system::CVSystem,n::Int64,hemoflag="no")
+function applyendbcs!(system::CVSystem,n::Int64,terms::Vector{Int64},hemoflag="no")
     # update periphery
     if hemoflag == "no"
-        CVModule.coupledistal!(system,n);
+        CVModule.coupledistal!(system,n,terms);
     elseif hemoflag == "yes"
-        CVModule.coupledistal!(system,n,hemoflag);
-    end  
-    CVModule.updateterms!(system,n);
-    CVModule.updatevc!(system,n);
+        CVModule.coupledistal!(system,n,terms,hemoflag);
+    end
+    for i = 1:length(terms)
+        CVModule.updateterms!(system,n,terms[i]);
+    end
+    CVModule.updatevc!(system,n,terms);
+    if hemoflag == "no"
+        CVModule.updateliver!(system,n);
+    elseif hemoflag == "yes"
+        CVModule.updateliver!(system,n,hemoflag);
+    end
 
     # update right heart
     CVModule.updaterh!(system,n);
