@@ -19,12 +19,14 @@ end
 
 function main()
 
-# filename = "arterytree.csv";
-filename = "test1.mat";
-rstflag = "yes"
-hemoflag = "no"
-saveflag = "yes"
-coupleflag = "no"
+# options
+filename = "arterytree.csv"; # default artery data file for new simulation
+# filename = "test1.mat"; # filename for restarting simulation
+rstflag = "no" # restarting from scratch or previous simulation
+hemoflag = "no" # 10% hemorrhage from left femoral artery
+saveflag = "yes" # save solution to .mat file
+coupleflag = "no" # coupling to 3D liver tissue model
+timeflag = "yes" # solver timing
 
 # build solution struct
 system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
@@ -157,7 +159,7 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
                 system.branches.W2[splits[i]] = W[1];
                 system.branches.W1[children] .= W[2:end];
             end
-            # CVModule.applytourniquet!(system,n); # turn off to allow continual bleeding
+            CVModule.applytourniquet!(system,n); # turn off to allow continual bleeding
         end
         system.solverparams.totaliter += iters[1];
         system.branches.Q[splits[i]][system.solverparams.JL,n+2] = Qnew[1];
@@ -187,11 +189,15 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test1.mat", "w")
+    file = MAT.matopen("savefile.mat", "w")
     write(file, "system", system)
     close(file)
 end
 
-return system, n, times
+if timeflag == "yes"
+    return system, n, times
+elseif timeflag == "no"
+    return system, n
+end
 
 end
