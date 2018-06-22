@@ -1,4 +1,4 @@
-function regulateall!(system::CVSystem,n::Int64)
+function regulateall!(system::CVSystem,n::Int64,terms::Vector{Int64})
     # changes to HR, ventricular contractility
     system.cns.H[n+2] = ((1 - system.solverparams.h/system.cns.tauH)*
         system.cns.H[n+1]/minTos + system.solverparams.h/system.cns.tauH*
@@ -64,7 +64,7 @@ function regulateall!(system::CVSystem,n::Int64)
         -system.cns.alphaV5U*system.cns.ns[system.solverparams.numbeats+1]+
         system.cns.gammaV5U);
 
-    CVModule.regulateperiphery!(system,n);
+    CVModule.regulateperiphery!(system,n,terms);
 
     # check for start of new cardiac cycle
     oldnumbeats = system.solverparams.numbeats;

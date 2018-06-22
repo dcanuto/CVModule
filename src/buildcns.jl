@@ -93,7 +93,7 @@ type CNS # central nervous system
         this.tauC = 20;
         this.tauR = 6;
         this.tauV = 20;
-        this.Ptarget = 94.7*mmHgToPa;
+        this.Ptarget = 94.6*mmHgToPa;
         this.Paverage = Vector{Float64}[];
         this.avgindexstart = 1;
         this.avgindexend = 0;

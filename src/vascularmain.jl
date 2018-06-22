@@ -22,7 +22,7 @@ function main()
 # filename = "arterytree.csv";
 filename = "test1.mat";
 rstflag = "yes"
-hemoflag = "yes"
+hemoflag = "no"
 saveflag = "yes"
 coupleflag = "no"
 
@@ -54,6 +54,8 @@ end
 
 tic();
 # solver loop
+ret1 = Array{Float64}(system.solverparams.JL-2); # placeholder arrays for interior 1d points
+ret2 = Array{Float64}(system.solverparams.JL-2);
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
     tic();
     for i = 1:length(system.branches.ID)
@@ -70,8 +72,6 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
             system.branches.Qforward[i],system.branches.Aforward[i],system.branches.Qbackward[i],
             system.branches.Abackward[i],system.branches.beta[i][end],system.solverparams.rho,
             system.solverparams.acolscor,system.solverparams.qcolscor);
-        ret1 = Array{Float64}(system.solverparams.JL-2);
-        ret2 = Array{Float64}(system.solverparams.JL-2);
         CVModule.correctorstep!(ret1,ret2,
             system.branches.A[i][:,n+1],system.branches.Q[i][:,n+1],system.branches.Fbarforward[i],
             system.branches.Fbarbackward[i],system.branches.Qforward[i],system.branches.Aforward[i],
@@ -90,7 +90,7 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     end
     times.tc += toq();
     tic();
-    @time for i = 1:length(splits)
+    for i = 1:length(splits)
         children = system.branches.children[splits[i]];
         if length(children) == 1
             f = CVModule.fsingle;
@@ -170,7 +170,7 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     times.ts += toq();
     tic();
     CVModule.arterialpressure!(system,n);
-    CVModule.regulateall!(system,n);
+    CVModule.regulateall!(system,n,terms);
     if coupleflag == "yes"
         CVModule.senddata(system,n,sender);
     end
@@ -187,7 +187,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("hemo1.mat", "w")
+    file = MAT.matopen("test1.mat", "w")
     write(file, "system", system)
     close(file)
 end
