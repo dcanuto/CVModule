@@ -89,63 +89,43 @@ type ArterialBranches # 1D arterial domain
 
             # pull in artery data from text file
             temp = CVModule.loadtexttree(filename);
-
-            if is_windows()
-                foreach((x)->push!(this.name,get(x)),temp[:Name])
-                foreach((x)->push!(this.parentname,get(x)),temp[:ParentName])
-                foreach((x)->push!(this.ID,get(x)),temp[:ID])
-                foreach((x)->push!(this.parentID,get(x)),temp[:parentID])
-                for i in 1:size(temp[:children_1],1)
-                    push!(this.group,get(temp[i,:group],"NA"))
-                    push!(this.children,[get(temp[i,:children_1],0)])
-                    push!(this.children[i],get(temp[i,:children_2],0))
-                    push!(this.children[i],get(temp[i,:children_3],0))
-                    push!(this.children[i],get(temp[i,:children_4],0))
-                    deleteat!(this.children[i],findin(this.children[i],0))
+            this.name = [string(temp[1,:Name])]
+            this.parentname = [string(temp[1,:ParentName])]
+            this.ID = [temp[1,:ID]]
+            this.parentID = [temp[1,:parentID]]
+            this.lengthincm = [temp[1,:Length_cm]]
+            this.radiusincm = [temp[1,:Radius_cm]]
+            this.thicknessincm = [temp[1,:Thickness_cm]]
+            this.YoungsModinMPa = [temp[1,:YoungsModulus_MPa]]
+            for i = 2:length(temp[:Name])
+                push!(this.name,string(temp[i,:Name]))
+                push!(this.parentname,string(temp[i,:ParentName]))
+                push!(this.ID,temp[i,:ID])
+                push!(this.parentID,temp[i,:parentID])
+                push!(this.lengthincm,temp[i,:Length_cm])
+                push!(this.radiusincm,temp[i,:Radius_cm])
+                push!(this.thicknessincm,temp[i,:Thickness_cm])
+                push!(this.YoungsModinMPa,temp[i,:YoungsModulus_MPa])
+            end
+            for i in 1:size(temp[:children_1],1)
+                if !isa(temp[i,:group],Missings.Missing)
+                    push!(this.group,string(temp[i,:group]))
+                else
+                    push!(this.group,"NA")
                 end
-                foreach((x)->push!(this.lengthincm,get(x)),temp[:Length_cm])
-                foreach((x)->push!(this.radiusincm,get(x)),temp[:Radius_cm])
-                foreach((x)->push!(this.thicknessincm,get(x)),temp[:Thickness_cm])
-                foreach((x)->push!(this.YoungsModinMPa,get(x)),temp[:YoungsModulus_MPa])
-            elseif is_linux()
-                this.name = [string(temp[1,:Name])]
-                this.parentname = [string(temp[1,:ParentName])]
-                this.ID = [temp[1,:ID]]
-                this.parentID = [temp[1,:parentID]]
-                this.lengthincm = [temp[1,:Length_cm]]
-                this.radiusincm = [temp[1,:Radius_cm]]
-                this.thicknessincm = [temp[1,:Thickness_cm]]
-                this.YoungsModinMPa = [temp[1,:YoungsModulus_MPa]]
-                for i = 2:length(temp[:Name])
-                    push!(this.name,string(temp[i,:Name]))
-                    push!(this.parentname,string(temp[i,:ParentName]))
-                    push!(this.ID,temp[i,:ID])
-                    push!(this.parentID,temp[i,:parentID])
-                    push!(this.lengthincm,temp[i,:Length_cm])
-                    push!(this.radiusincm,temp[i,:Radius_cm])
-                    push!(this.thicknessincm,temp[i,:Thickness_cm])
-                    push!(this.YoungsModinMPa,temp[i,:YoungsModulus_MPa])
+                if !isa(temp[i,:children_1],Missings.Missing)
+                    push!(this.children,[temp[i,:children_1]])
+                else
+                    push!(this.children,[])
                 end
-                for i in 1:size(temp[:children_1],1)
-                    if !isa(temp[i,:group],Missings.Missing)
-                        push!(this.group,string(temp[i,:group]))
-                    else
-                        push!(this.group,"NA")
-                    end
-                    if !isa(temp[i,:children_1],Missings.Missing)
-                        push!(this.children,[temp[i,:children_1]])
-                    else
-                        push!(this.children,[])
-                    end
-                    if !isa(temp[i,:children_2],Missings.Missing)
-                        push!(this.children[i],temp[i,:children_2])
-                    end
-                    if !isa(temp[i,:children_3],Missings.Missing)
-                        push!(this.children[i],temp[i,:children_3])
-                    end
-                    if !isa(temp[i,:children_4],Missings.Missing)
-                        push!(this.children[i],temp[i,:children_4])
-                    end
+                if !isa(temp[i,:children_2],Missings.Missing)
+                    push!(this.children[i],temp[i,:children_2])
+                end
+                if !isa(temp[i,:children_3],Missings.Missing)
+                    push!(this.children[i],temp[i,:children_3])
+                end
+                if !isa(temp[i,:children_4],Missings.Missing)
+                    push!(this.children[i],temp[i,:children_4])
                 end
             end
         elseif restart == "yes"

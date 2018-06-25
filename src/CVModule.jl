@@ -5,9 +5,7 @@ importall MAT
 importall Interpolations
 importall CSV
 importall ZMQ
-if is_linux()
-    importall Missings
-end
+importall Missings
 
 # conversion factors and solver parameters
 include("conversions.jl")
