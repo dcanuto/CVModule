@@ -20,9 +20,9 @@ end
 function main()
 
 # options
-# filename = "arterytree.csv"; # default artery data file for new simulation
-filename = "run1.mat"; # filename for restarting simulation
-rstflag = "yes" # restarting from scratch or previous simulation
+filename = "arterytree.csv"; # default artery data file for new simulation
+# filename = "run1.mat"; # filename for restarting simulation
+rstflag = "no" # restarting from scratch or previous simulation
 hemoflag = "no" # 10% hemorrhage from left femoral artery
 saveflag = "yes" # save solution to .mat file
 coupleflag = "no" # coupling to 3D liver tissue model
@@ -189,7 +189,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("run2.mat", "w")
+    file = MAT.matopen("test.mat", "w")
     write(file, "system", system)
     close(file)
 end
