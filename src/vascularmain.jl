@@ -17,19 +17,18 @@ type CVTimer
     end
 end
 
-function main()
+function main(hemoflag::String,rstflag::String,loadfile::String,saveflag::String,numcycles::Int64,savefile="no")
 
-# options
-filename = "arterytree.csv"; # default artery data file for new simulation
+#options
 # filename = "run1.mat"; # filename for restarting simulation
-rstflag = "no" # restarting from scratch or previous simulation
-hemoflag = "no" # 10% hemorrhage from left femoral artery
-saveflag = "yes" # save solution to .mat file
+# rstflag = "no" # restarting from scratch (no) or previous simulation (yes)
+# hemoflag = "yes" # 10% hemorrhage from left femoral artery
+#saveflag = "yes" # save solution to .mat file
 coupleflag = "no" # coupling to 3D liver tissue model
 timeflag = "yes" # solver timing
 
 # build solution struct
-system = CVModule.buildall(filename;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(loadfile;numbeatstotal=numcycles,restart=rstflag,injury=hemoflag);
 
 # timers
 times = CVTimer();
@@ -189,7 +188,7 @@ if coupleflag == "yes"
 end
 
 if saveflag == "yes"
-    file = MAT.matopen("test.mat", "w")
+    file = MAT.matopen(savefile, "w")
     write(file, "system", system)
     close(file)
 end
