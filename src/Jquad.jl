@@ -1,5 +1,5 @@
-function Jquad(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
-    J = zeros(10,10);
+function Jquad!(J::Matrix{Float64},x::Vector{Float64},beta::Vector{Float64},rho::Float64)
+    # J = zeros(10,10);
 
     J[1,1] = 1.;
     J[2,1] = rho.*x[1]./(x[2].^2);
@@ -42,5 +42,5 @@ function Jquad(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
     J[5,10] = (-0.5.*beta[5].*x[10].^-0.5 .+ rho.*x[9].^2.*x[10].^-3);
     J[10,10] = -x[9].*x[10].^-2 .- sqrt.(0.5.*beta[5]./rho).*x[10].^-0.75;
 
-    return J
+    # return J
 end

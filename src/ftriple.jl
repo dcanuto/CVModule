@@ -1,6 +1,6 @@
-function ftriple(x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
+function ftriple!(f::Vector{Float64},x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
     rho::Float64,c0::Vector{Float64},W::Vector{Float64})
-    f = zeros(8);
+    # f = zeros(8);
     # conservation of mass
     f[1] = x[1] .- x[3] .- x[5] .- x[7];
 
@@ -18,5 +18,5 @@ function ftriple(x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
     f[7] = (x[5]./x[6]) .- 4.*(sqrt.(0.5.*beta[3]./rho).*x[6].^0.25 .- c0[3]) .- W[3];
     f[8] = (x[7]./x[8]) .- 4.*(sqrt.(0.5.*beta[4]./rho).*x[8].^0.25 .- c0[4]) .- W[4];
 
-    return f
+    # return f
 end

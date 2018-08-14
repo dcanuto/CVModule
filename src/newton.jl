@@ -15,28 +15,51 @@ function newton!(iters::Vector{Int64},Q::Vector{Float64},A::Vector{Float64},
         x0[2*i+2] = Aold[i+1];
     end
 
+    # setup for iterations
     xx .= x0;
     x = zeros(length(x0));
     N = 1; # iteration counter
+    xn = zeros(length(x0));
+
+    # allocation for objective function/Jacobian
+    if numchildren == 1
+        ff = zeros(4);
+        JJ = zeros(4,4);
+    elseif numchildren == 2
+        ff = zeros(6);
+        JJ = zeros(6,6);
+    elseif numchildren == 3
+        ff = zeros(8);
+        JJ = zeros(8,8);
+    elseif numchildren == 4
+        ff = zeros(10);
+        JJ = zeros(10,10);
+    end
 
     # Newton iterations
     while N <= maxiter
         # determine Jacobian, check invertibility
-        JJ = J(xx,beta,rho)
+        # println("Interior Jacobian:")
+        J(JJ,xx,beta,rho);
         if abs(det(JJ)) < epsJ
             error("Newton Jacobian is singular.");
         end
         # update state vector
-        xn = xx - inv(JJ)*f(xx,beta,A0,rho,c0,W);
+        # println("State update:")
+        f(ff,xx,beta,A0,rho,c0,W);
+        xn .= xx .- inv(JJ)*ff
         # check if sufficiently close to root
-        if norm(f(xn,beta,A0,rho,c0,W)) <= epsN
+        # println("Root checking:")
+        f(ff,xn,beta,A0,rho,c0,W);
+        if norm(ff) <= epsN
             x = xn;
             # println(x)
             iters[1] += N;
             break
         end
         # check for divergence
-        if norm(f(xn,beta,A0,rho,c0,W)) >= maxval
+        f(ff,xn,beta,A0,rho,c0,W)
+        if norm(ff) >= maxval
             iters[1] += N;
             error("Newton iteration diverged.");
         end
@@ -48,6 +71,7 @@ function newton!(iters::Vector{Int64},Q::Vector{Float64},A::Vector{Float64},
     end
 
     # update junction using converged state vector
+    # println("Junction update:")
     Q[1] = x[1];
     A[1] = x[2];
     for i = 1:numchildren

@@ -11,6 +11,9 @@ importall Missings
 include("conversions.jl")
 include("solverparams.jl")
 
+# timing
+include("buildtimer.jl")
+
 # function for loading 1D domain empirical data from CSV file
 include("loadtexttree.jl")
 
@@ -52,13 +55,6 @@ include("setnumbeats.jl")
 # volume tracker, error corrector for mass conservation
 include("updatevolumes.jl")
 include("correctvolume.jl")
-
-# # Lax-Wendroff method for interior points of arterial network
-# include("predictorfluxes.jl")
-# include("predictorstep.jl")
-# include("correctorfluxes.jl")
-# include("correctorstep.jl")
-# include("lw.jl")
 
 # TVD RK3 + WENO3 for artery interiors
 include("arteryodes.jl")
@@ -129,6 +125,7 @@ include("senddata.jl")
 include("sc.jl")
 
 export CVSystem
+export CVTimer
 export Heart
 export ArterialBranches
 export SolverParams

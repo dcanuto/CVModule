@@ -1,22 +1,5 @@
 importall CVModule
 
-type CVTimer
-    tfd::Float64
-    tc::Float64
-    ts::Float64
-    tr::Float64
-    tt::Float64
-    function CVTimer()
-        this = new();
-        tfd = 0;
-        tc = 0;
-        ts = 0;
-        tr = 0;
-        tt = 0;
-        return this
-    end
-end
-
 function main()
 
 # options
@@ -33,7 +16,7 @@ timeflag = "yes" # solver timing
 system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
 
 # timers
-times = CVTimer();
+times = CVModule.CVTimer();
 
 # collect all IDs of terminal/non-terminal branches
 terms = Int64[];
@@ -61,15 +44,12 @@ while system.solverparams.numbeats < system.solverparams.numbeatstotal
     if mod(n,100) == 0
         println("Reached time step $n.")
     end
-    tic();
     if hemoflag == "no"
-        CVModule.tvdrk3!(system,n,splits,terms);
-        times.tfd += toq();
+        CVModule.tvdrk3!(system,times,n,splits,terms);
         tic();
         CVModule.update0d!(system,n,terms);
     elseif hemoflag == "yes"
-        CVModule.tvdrk3!(system,n,splits,terms,hemoflag);
-        times.tfd += toq();
+        CVModule.tvdrk3!(system,times,n,splits,terms,hemoflag);
         tic();
         CVModule.update0d!(system,n,terms,hemoflag);
     end

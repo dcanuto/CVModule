@@ -1,4 +1,4 @@
-function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{Int64},hemoflag="no")
+function tvdrk3!(system::CVSystem,times::CVTimer,n::Int64,splits::Vector{Int64},terms::Vector{Int64},hemoflag="no")
     # allocation for invariant/boundary value RK3 loop
     dW = zeros(2);
     W10 = zeros(2,length(system.branches.ID));
@@ -54,6 +54,7 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
 
     # first RK step
     # println("First RK:")
+    tic();
     for i = 1:length(system.branches.ID)
         # println("First step, artery $i, time step $n.")
         # scalings
@@ -103,9 +104,11 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
         Q1[:,i] .= (system.branches.Q[i][2:end-1,n+1]./Qs .+
             system.solverparams.h./ts.*dU[system.solverparams.qcols[1:end.-2].-2]).*Qs;
     end
+    times.tfd += toq();
 
     # first set of boundary values
     # println("Split solve:")
+    tic();
     for i = 1:length(splits)
         children = system.branches.children[splits[i]];
         Q = zeros(length(children)+1);
@@ -116,13 +119,17 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
             Q[j+1] = system.branches.Q[children[j]][1,n+1];
             A[j+1] = system.branches.A[children[j]][1,n+1];
         end
-        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A);
+        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A,children);
     end
+    times.ts += toq();
     # println("0D-1D coupling:")
+    tic();
     CVModule.coupling!(system,n,system.solverparams.h,terms,hemoflag);
+    times.tc += toq();
 
     # second RK step
     # println("Second RK:")
+    tic()
     for i = 1:length(system.branches.ID)
         # println("Second step, artery $i, time step $n.")
         Acat[1] = system.branches.A[i][1,n+2];
@@ -178,8 +185,10 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
         Q2[:,i] .= (0.75.*system.branches.Q[i][2:end-1,n+1]./Qs .+ 0.25.*Q1[:,i]./Qs .+
             0.25.*system.solverparams.h./ts.*dU[system.solverparams.qcols[1:end.-2].-2]).*Qs;
     end
+    times.tfd += toq();
 
     # second set of boundary values
+    tic();
     for i = 1:length(splits)
         children = system.branches.children[splits[i]];
         Q = zeros(length(children)+1);
@@ -190,12 +199,16 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
             Q[j+1] = system.branches.Q[children[j]][1,n+2];
             A[j+1] = system.branches.A[children[j]][1,n+2];
         end
-        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A);
+        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A,children);
     end
+    times.ts += toq();
+    tic()
     CVModule.coupling!(system,n,0.5*system.solverparams.h,terms,hemoflag);
+    times.tc += toq();
 
     # third RK step
     # println("Third RK:")
+    tic();
     for i = 1:length(system.branches.ID)
         # println("Third step, artery $i, time step $n.")
         Acat[1] = system.branches.A[i][1,n+2];
@@ -251,10 +264,13 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
         system.branches.Q[i][2:end-1,n+2] .= (1/3.*system.branches.Q[i][2:end-1,n+1]./Qs .+ 2/3.*Q2[:,i]./Qs .+
             2/3.*system.solverparams.h./ts.*dU[system.solverparams.qcols[1:end.-2].-2]).*Qs;
     end
+    times.tfd += toq();
 
     # third set of boundary values
     # println("Third interior boundaries:")
+    tic();
     for i = 1:length(splits)
+        # println("Interior boundary allocation:")
         children = system.branches.children[splits[i]];
         Q = zeros(length(children)+1);
         A = zeros(length(children)+1);
@@ -264,9 +280,13 @@ function tvdrk3!(system::CVSystem,n::Int64,splits::Vector{Int64},terms::Vector{I
             Q[j+1] = system.branches.Q[children[j]][1,n+2];
             A[j+1] = system.branches.A[children[j]][1,n+2];
         end
-        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A);
+        # println("Interior boundary solution:")
+        CVModule.interiorbcs!(system,n,splits[i],hemoflag,Q,A,children);
     end
+    times.ts += toq();
     # println("Third coupling:")
+    tic();
     CVModule.coupling!(system,n,system.solverparams.h,terms,hemoflag);
+    times.tc += toq();
 
 end

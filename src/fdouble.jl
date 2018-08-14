@@ -1,6 +1,6 @@
-function fdouble(x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
+function fdouble!(f::Vector{Float64},x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
     rho::Float64,c0::Vector{Float64},W::Vector{Float64})
-    f = zeros(6);
+    # f = zeros(6);
     # conservation of mass
     f[1] = x[1] .- x[3] .- x[5];
 
@@ -15,5 +15,5 @@ function fdouble(x::Vector{Float64},beta::Vector{Float64},A0::Vector{Float64},
     f[5] = (x[3]./x[4]) .- 4.*(sqrt.(0.5.*beta[2]./rho).*x[4].^0.25 .- c0[2]) .- W[2];
     f[6] = (x[5]./x[6]) .- 4.*(sqrt.(0.5.*beta[3]./rho).*x[6].^0.25 .- c0[3]) .- W[3];
 
-    return f
+    # return f
 end

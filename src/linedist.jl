@@ -1,7 +1,8 @@
 function linedist(xold::Vector{Float64},fold::Float64,g::Vector{Float64},p::Vector{Float64},
     stpmax::Float64,f::Function,J::Function,maxiter::Int16,V::Float64,Q::Float64,
     Vs::Float64,vs::Float64,ts::Float64,V0::Float64,rho::Float64,beta::Float64,C::Float64,
-    W1end::Float64,c0::Float64,A0::Float64,h::Float64)
+    W1end::Float64,c0::Float64,A0::Float64,h::Float64,JJ::Matrix{Float64},d::Vector{Float64},
+    fvec::Vector{Float64},D::Matrix{Float64})
     alpha = 1e-4;
     tolx = 1e-7;
     check = false;
@@ -37,10 +38,12 @@ function linedist(xold::Vector{Float64},fold::Float64,g::Vector{Float64},p::Vect
 
     while N < maxiter
         x = xold+alam*p;
-        JJ = J(x,Vs,vs,ts,C,W1end,c0,rho,beta,h);
+        J(JJ,x,Vs,vs,ts,C,W1end,c0,rho,beta,h);
         # println(JJ)
-        D = diagm(maximum!(zeros(length(x)),abs.(JJ)).^-1);
-        fvec = D*f(x,V,Q,Vs,vs,ts,V0,rho,beta,C,W1end,c0,A0,h);
+        maximum!(d,abs.(JJ))
+        D[1,1] = 1/d[1];
+        D[2,2] = 1/d[2];
+        f(fvec,x,D,V,Q,Vs,vs,ts,V0,rho,beta,C,W1end,c0,A0,h);
         # println(D)
         # println(fvec)
         fn = 0.5*dot(fvec,fvec);

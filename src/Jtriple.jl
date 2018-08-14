@@ -1,5 +1,5 @@
-function Jtriple(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
-    J = zeros(8,8);
+function Jtriple!(J::Matrix{Float64},x::Vector{Float64},beta::Vector{Float64},rho::Float64)
+    # J = zeros(8,8);
 
     J[1,1] = 1.;
     J[2,1] = rho.*x[1]./(x[2].^2);
@@ -33,5 +33,5 @@ function Jtriple(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
     J[4,8] = (-0.5.*beta[4].*x[8].^-0.5 .+ rho.*x[7].^2.*x[8].^-3);
     J[8,8] = -x[7].*x[8].^-2 .- sqrt.(0.5.*beta[4]./rho).*x[8].^-0.75;
 
-    return J
+    # return J
 end

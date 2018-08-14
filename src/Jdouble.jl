@@ -1,5 +1,5 @@
-function Jdouble(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
-    J = zeros(6,6);
+function Jdouble!(J::Matrix{Float64},x::Vector{Float64},beta::Vector{Float64},rho::Float64)
+    # J = zeros(6,6);
 
     J[1,1] = 1.;
     J[2,1] = rho.*x[1]./(x[2].^2);
@@ -24,5 +24,5 @@ function Jdouble(x::Vector{Float64},beta::Vector{Float64},rho::Float64)
     J[3,6] = (-0.5.*beta[3].*x[6].^-0.5 .+ rho.*x[5].^2.*x[6].^-3);
     J[6,6] = -x[5].*x[6].^-2 .- sqrt.(0.5.*beta[3]./rho).*x[6].^-0.75;
 
-    return J
+    # return J
 end

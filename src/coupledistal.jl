@@ -21,8 +21,8 @@ function coupledistal!(system::CVSystem,n::Int64,h::Float64,terms::Vector{Int64}
                 system.branches.term[terms[i]].C[1],system.branches.term[terms[i]].Q[n+1,1],
                 system.branches.term[terms[i]].V0[1],system.branches.beta[terms[i]][end],
                 system.branches.c0[terms[i]][end],system.branches.A0[terms[i]][end],
-                system.branches.W1end[terms[i]],system.solverparams.rho,CVModule.fdist,
-                CVModule.Jdist,system.solverparams.maxiter,system.solverparams.epsJ,
+                system.branches.W1end[terms[i]],system.solverparams.rho,CVModule.fdist!,
+                CVModule.Jdist!,system.solverparams.maxiter,system.solverparams.epsJ,
                 system.solverparams.epsN,system.solverparams.maxval,h);
             system.solverparams.totaliter += iters[1];
             system.branches.term[terms[i]].V[n+2,1] = yout[1];
