@@ -1,9 +1,16 @@
-function elastancefn!(system::CVSystem,n::Int64)
+function elastancefn!(system::CVSystem,n::Int64,h::Float64)
+    # # time within heart cycle
+    # if system.solverparams.numbeats > 0
+    #     tp = system.t[n+1] - sum(system.heart.activation.th[1:end-1]);
+    # else
+    #     tp = system.t[n+1];
+    # end
+
     # time within heart cycle
     if system.solverparams.numbeats > 0
-        tp = system.t[n+1] - sum(system.heart.activation.th[1:end-1]);
+        tp = system.t[n+1] + h - sum(system.heart.activation.th[1:end-1]);
     else
-        tp = system.t[n+1];
+        tp = system.t[n+1] + h;
     end
 
     # heart activation function

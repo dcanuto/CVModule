@@ -1,4 +1,4 @@
-function coupleproximal!(system::CVSystem,n::Int64)
+function coupleproximal!(system::CVSystem,n::Int64,h::Float64)
     if (system.heart.lv.P[n+1]/mmHgToPa < system.branches.P[1][1,n+1] &&
         system.heart.av.zeta[n+1] == 0)
         AV = "closed";
@@ -10,13 +10,13 @@ function coupleproximal!(system::CVSystem,n::Int64)
     end
 
     if AV == "closed"
-        # update left-running invariant by extrapolation
-        ret1 = Float64[0];
-        CVModule.rootinvariant!(ret1,system.branches.Q[1][1,n+1],system.branches.A[1][1,n+1],
-            system.branches.Q[1][2,n+1],system.branches.A[1][2,n+1],system.branches.c0[1][end],
-            system.branches.beta[1][end],system.solverparams.rho,system.solverparams.mu,
-            system.solverparams.diffusioncoeff,system.branches.k[1],system.solverparams.h);
-        system.branches.W2root = ret1[1];
+        # # update left-running invariant by extrapolation
+        # ret1 = Float64[0];
+        # CVModule.rootinvariant!(ret1,system.branches.Q[1][1,n+1],system.branches.A[1][1,n+1],
+        #     system.branches.Q[1][2,n+1],system.branches.A[1][2,n+1],system.branches.c0[1][end],
+        #     system.branches.beta[1][end],system.solverparams.rho,system.solverparams.mu,
+        #     system.solverparams.diffusioncoeff,system.branches.k[1],system.solverparams.h);
+        # system.branches.W2root = ret1[1];
         # update right-running invariant
         system.branches.W1root = -system.branches.W2root;
         # update proximal A, Q w/ invariants
@@ -30,14 +30,14 @@ function coupleproximal!(system::CVSystem,n::Int64)
             system.branches.Q[1][1,n+2]));
     else
         # ventricular elastance at next time step
-        CVModule.elastancefn!(system,n+1);
-        # update W2 by extrapolation
-        ret1 = Float64[0];
-        CVModule.rootinvariant!(ret1,system.branches.Q[1][1,n+1],system.branches.A[1][1,n+1],
-            system.branches.Q[1][2,n+1],system.branches.A[1][2,n+1],system.branches.c0[1][end],
-            system.branches.beta[1][end],system.solverparams.rho,system.solverparams.mu,
-            system.solverparams.diffusioncoeff,system.branches.k[1],system.solverparams.h);
-        system.branches.W2root = ret1[1];
+        CVModule.elastancefn!(system,n+1,h);
+        # # update W2 by extrapolation
+        # ret1 = Float64[0];
+        # CVModule.rootinvariant!(ret1,system.branches.Q[1][1,n+1],system.branches.A[1][1,n+1],
+        #     system.branches.Q[1][2,n+1],system.branches.A[1][2,n+1],system.branches.c0[1][end],
+        #     system.branches.beta[1][end],system.solverparams.rho,system.solverparams.mu,
+        #     system.solverparams.diffusioncoeff,system.branches.k[1],system.solverparams.h);
+        # system.branches.W2root = ret1[1];
         # non-dimensionalizing parameters
         Vs = 100*cm3Tom3;
         vs = system.branches.c0[1][end];
@@ -48,7 +48,7 @@ function coupleproximal!(system::CVSystem,n::Int64)
             zs = system.heart.av.zeta[n+1];
         end
         # tolerance on dζ/dt (needs to be lower for higher HR)
-        tolz = 1e-7 + (0.8 - system.heart.activation.th[end])*2.5e-5;
+        tolz = 1e-8 + (0.8 - system.heart.activation.th[end])*2.5e-6;
         # Newton iterations
         yout = zeros(5);
         iters = Int64[0];

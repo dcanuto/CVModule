@@ -60,8 +60,6 @@ function newtondist!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::
             x = xn;
             x[1] = x[1]*vs;
             x[2] = x[2]*Vs;
-            # println(x)
-            # println(system.branches.W2root)
             # println(inv(D*JJ))
             # println(fvec)
             iters[1] += N;
@@ -108,4 +106,8 @@ function newtondist!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::
     yout[2] = 1./C.*(x[2] .- V0);
     yout[3] = (2.*rho/beta).^2.*((W1end.-x[1])./8 .+ c0).^4;
     yout[4] = yout[3].*0.5.*(W1end .+ x[1]);
+    # println("Converged distal volume, mL: $(yout[1]/cm3Tom3)")
+    # println("Converged distal pressure, mmHg: $(yout[2]/mmHgToPa)")
+    # println("Converged distal area, cm2: $(yout[3]/(cmTom^2))")
+    # println("Converged distal flowrate, mL/s: $(yout[4]/cm3Tom3)")
 end

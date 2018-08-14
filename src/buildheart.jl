@@ -8,11 +8,13 @@ type Activation
 
     function Activation(old=Dict("a"=>0),restart="no")
         this = new()
-        this.m1 = 1.32;
+        # this.m1 = 1.32;
+        this.m1 = 1.6;
         this.m2 = 27.4;
         if restart == "no"
             this.th = [0.8];
-            this.tau1 = 0.269*this.th[1];
+            # this.tau1 = 0.269*this.th[1];
+            this.tau1 = 0.452*this.th[1];
             this.tau2 = 0.452*this.th[1];
             t = linspace(0,this.th[1],10000);
             g1 = (t/this.tau1).^this.m1;
@@ -138,13 +140,16 @@ type AorticValve
 
     function AorticValve()
         this = new()
-        this.Kvo = 0.16;
-        this.Kvc = 0.16;
-        this.leff = 0.01;
+        # this.Kvo = 0.16;
+        # this.Kvc = 0.16;
+        this.Kvo = 0.10;
+        this.Kvc = 0.10;
+        this.leff = 0.05;
         this.Po = 0;
         this.Pc = 0;
         this.Aann = 3.8e-4;
-        this.Ks = 4e-9/cm3Tom3;
+        # this.Aann = 6e-4;
+        this.Ks = 8e-5/cm3Tom3;
         this.zeta = Vector{Float64}[];
         return this
     end

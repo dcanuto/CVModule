@@ -124,7 +124,7 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
         fvec = D*f(xn,Vs,vs,ts,zs,Vlv,zeta,Q,rho,beta,W2root,c0,Kvo,Kvc,Ks,E,V0,
             A0,Aann,leff,h,state);
         # println(fvec)
-        if norm(fvec) <= epsN*1000
+        if norm(fvec) <= epsN*100
             x = xn;
             x[1] = x[1]*vs;
             x[2] = x[2]*Vs;
@@ -164,12 +164,15 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
         N+=1;
         xx = xn;
         if N == maxiter
-            println(JJ)
+            println("Proximal Jacobian:")
+            display(JJ)
             # println(D)
             # println(D*JJ)
-            println(xn)
-            println(fvec)
-            println(norm(fvec))
+            println("Proximal state variables (W1 (m/s), Vlv (mL), ζ):")
+            println("x = $([xn[1]*vs xn[2]*Vs/cm3Tom3 xn[3]*zs])")
+            println("Proximal objective function values (want zeroes): ")
+            println("f = $fvec")
+            println("2-norm of objective function: $(norm(fvec))")
             error("Newton iteration failed to converge.");
         end
     end
@@ -186,7 +189,7 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
             yout[4] = x[3];
         end
     else
-        if zeta < 1e-5 && state == "closing"
+        if zeta < 1e-6 && state == "closing"
             yout[4] = 0;
             println("Aortic valve closed.")
         else

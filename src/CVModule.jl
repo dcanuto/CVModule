@@ -53,14 +53,30 @@ include("setnumbeats.jl")
 include("updatevolumes.jl")
 include("correctvolume.jl")
 
-# Lax-Wendroff method for interior points of arterial network
-include("predictorfluxes.jl")
-include("predictorstep.jl")
-include("correctorfluxes.jl")
-include("correctorstep.jl")
+# # Lax-Wendroff method for interior points of arterial network
+# include("predictorfluxes.jl")
+# include("predictorstep.jl")
+# include("correctorfluxes.jl")
+# include("correctorstep.jl")
+# include("lw.jl")
+
+# TVD RK3 + WENO3 for artery interiors
+include("arteryodes.jl")
+include("tvdrk3.jl")
+include("invariants.jl")
+include("invariantodes.jl")
+include("weno3.jl")
+include("smoothinds.jl")
+include("weights.jl")
+include("reconstruct.jl")
+include("F1d.jl")
+include("J1d.jl")
+include("abseigs.jl")
 
 # 0D-1D coupling and 0D updates
-include("applyendbcs.jl")
+include("coupling.jl")
+include("update0d.jl")
+include("interiorbcs.jl")
 include("coupledistal.jl")
 include("endinvariants.jl")
 include("updateterms.jl")

@@ -1,6 +1,6 @@
 function elastancemodel!(system::CVSystem,n::Int64)
     # ventricular elastance
-    CVModule.elastancefn!(system,n)
+    CVModule.elastancefn!(system,n,0.)
 
     # update chamber pressures
     system.heart.lv.P[n+1] = system.heart.lv.E[n+1]*(
