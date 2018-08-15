@@ -17,7 +17,7 @@ type CVTimer
     end
 end
 
-function main(hemoflag::String,rstflag::String,loadfile::String,saveflag::String,numcycles::Int64,savefile="no")
+function main(hemoflag::String,rstflag::String,loadfile::String,saveflag::String,numcycles::Int64,selector::Int64,savefile="no")
 
 #options
 # filename = "run1.mat"; # filename for restarting simulation
@@ -28,7 +28,7 @@ coupleflag = "no" # coupling to 3D liver tissue model
 timeflag = "yes" # solver timing
 
 # build solution struct
-system = CVModule.buildall(loadfile;numbeatstotal=numcycles,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(loadfile,selector;numbeatstotal=numcycles,restart=rstflag,injury=hemoflag);
 
 # timers
 times = CVTimer();

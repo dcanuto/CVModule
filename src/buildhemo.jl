@@ -12,10 +12,10 @@ type Hemorrhage
     ttn::Float64
     injured::Vector{Bool}
 
-    function Hemorrhage()
+    function Hemorrhage(selector::Int64)
         this = new()
-        this.hID = [40]; # hepatic artery ID is 14, femoral artery is 40
-        this.tID = [39,40]; # apply tourniquet to femoral & profundis arteries
+        this.hID = [selector]; # hepatic artery ID is 14, femoral artery is 40
+        this.tID = this.hID; # apply tourniquet to femoral & profundis arteries
         this.Amax = Array{Float64,1}[];
         this.Amin = Array{Float64,1}[];
         this.bmax = Array{Float64,1}[];

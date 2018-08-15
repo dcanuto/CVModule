@@ -18,7 +18,7 @@ type CVSystem # entire solution
     initialvolume::Float64
     finalvolume::Float64
 
-    function CVSystem(filename="test.csv",restart="no")
+    function CVSystem(filename="test.csv",selector=0,restart="no")
         this = new()
         if restart == "no"
             this.heart = CVModule.Heart();
@@ -38,7 +38,7 @@ type CVSystem # entire solution
         this.lungs = CVModule.Lungs();
         this.liver = CVModule.Liver();
         this.cns = CVModule.CNS();
-        this.hemo = CVModule.Hemorrhage();
+        this.hemo = CVModule.Hemorrhage(selector);
         this.solverparams = CVModule.SolverParams();
         this.t = Vector{Float64}[];
         return this
@@ -46,9 +46,9 @@ type CVSystem # entire solution
 end
 
 # build solution struct
-function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
+function buildall(filename="test.csv",selector=0;numbeatstotal=1,restart="no",injury="no")
     if restart == "no"
-        system = CVModule.CVSystem(filename);
+        system = CVModule.CVSystem(filename,selector);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system);
         CVModule.discretizebranches!(system);
@@ -75,7 +75,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         lungs = sys["lungs"];
         liver = sys["liver"];
         cns = sys["cns"];
-        system = CVModule.CVSystem(filename,restart);
+        system = CVModule.CVSystem(filename,selector,restart);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system,branches,restart);
         CVModule.discretizebranches!(system,sys,restart);
