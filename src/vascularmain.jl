@@ -4,7 +4,7 @@ function main()
 
 # options
 loadfile = "arterytree.csv"; # default artery data file for new simulation
-# filename = "run1.mat"; # filename for restarting simulation
+# loadfile = "run2.mat"; # filename for restarting simulation
 rstflag = "no" # restarting from scratch or previous simulation
 hemoflag = "no" # 10% hemorrhage from left femoral artery
 saveflag = "yes" # save solution to .mat file
