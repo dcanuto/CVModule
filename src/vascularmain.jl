@@ -3,17 +3,17 @@ importall CVModule
 function main()
 
 # options
-loadfile = "arterytree.csv"; # default artery data file for new simulation
-# loadfile = "run2.mat"; # filename for restarting simulation
-rstflag = "no" # restarting from scratch or previous simulation
+# loadfile = "arterytree.csv"; # default artery data file for new simulation
+loadfile = "converged3.mat"; # filename for restarting simulation
+rstflag = "yes" # restarting from scratch or previous simulation
 hemoflag = "no" # 10% hemorrhage from left femoral artery
 saveflag = "yes" # save solution to .mat file
-savefile = "run1.mat" # filename for saving (only used if saveflag == "yes")
+savefile = "reg1.mat" # filename for saving (only used if saveflag == "yes")
 coupleflag = "no" # coupling to 3D liver tissue model
 timeflag = "yes" # solver timing
 
 # build solution struct
-system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
+system = CVModule.buildall(loadfile;numbeatstotal=10,restart=rstflag,injury=hemoflag);
 
 # timers
 times = CVModule.CVTimer();
@@ -41,9 +41,9 @@ end
 tic();
 # solver loop
 while system.solverparams.numbeats < system.solverparams.numbeatstotal
-    if mod(n,100) == 0
-        println("Reached time step $n.")
-    end
+    # if mod(n,100) == 0
+    #     println("Reached time step $n.")
+    # end
     if hemoflag == "no"
         CVModule.tvdrk3!(system,times,n,splits,terms);
         tic();

@@ -55,9 +55,9 @@ function applyperipheryics!(system::CVSystem,old=Dict("a"=>0),restart="no")
 
     if numupper > 0
         if restart == "no"
-            system.svc.P[1,1] = 4.5*mmHgToPa;
+            system.svc.P[1,1] = 4.56*mmHgToPa;
             system.svc.V[1,1] = system.svc.P[1,1]*system.svc.C + system.svc.V0;
-            system.ivc.P[1,1] = 4.5*mmHgToPa;
+            system.ivc.P[1,1] = 4.52*mmHgToPa;
             system.ivc.V[1,1] = system.ivc.P[1,1]*system.ivc.C + system.ivc.V0;
         elseif restart == "yes"
             svc = old["svc"];

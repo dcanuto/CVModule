@@ -75,7 +75,7 @@ function regulateall!(system::CVSystem,n::Int64,terms::Vector{Int64})
         # SNS/PSNS activations
         CVModule.cnsactivations!(system,n);
         CVModule.regulateheart!(system,n);
-        CVModule.correctvolume!(system,n);
+        # CVModule.correctvolume!(system,n);
         # update time discretization
         if system.solverparams.numbeats < system.solverparams.numbeatstotal
             CVModule.updatediscretization!(system);

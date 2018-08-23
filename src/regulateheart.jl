@@ -1,8 +1,8 @@
 function regulateheart!(system::CVSystem,n::Int64)
     # change activation function parameters based on new HR
     push!(system.heart.activation.th,1/system.cns.H[n+2]*minTos);
-    system.heart.activation.tau1 = 0.269*system.heart.activation.th[end];
-    system.heart.activation.tau2 = 0.452*system.heart.activation.th[end];
+    system.heart.activation.tau1 = system.heart.activation.t1c*system.heart.activation.th[end];
+    system.heart.activation.tau2 = system.heart.activation.t2c*system.heart.activation.th[end];
     t = linspace(0,system.heart.activation.th[end],10000);
     g1 = (t/system.heart.activation.tau1).^system.heart.activation.m1;
     g2 = (t/system.heart.activation.tau2).^system.heart.activation.m2;

@@ -124,7 +124,7 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
         fvec = D*f(xn,Vs,vs,ts,zs,Vlv,zeta,Q,rho,beta,W2root,c0,Kvo,Kvc,Ks,E,V0,
             A0,Aann,leff,h,state);
         # println(fvec)
-        if norm(fvec) <= epsN*100
+        if norm(fvec) <= epsN*1000
             x = xn;
             x[1] = x[1]*vs;
             x[2] = x[2]*Vs;

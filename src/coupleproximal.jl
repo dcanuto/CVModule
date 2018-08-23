@@ -41,14 +41,16 @@ function coupleproximal!(system::CVSystem,n::Int64,h::Float64)
         # non-dimensionalizing parameters
         Vs = 100*cm3Tom3;
         vs = system.branches.c0[1][end];
-        ts = system.heart.av.leff/vs;
+        # ts = system.heart.av.leff/vs;
+        ts = system.branches.k[1]/vs;
+
         if system.heart.av.zeta[n+1] == 0
             zs = 1e-5;
         else
             zs = system.heart.av.zeta[n+1];
         end
         # tolerance on dζ/dt (needs to be lower for higher HR)
-        tolz = 1e-8 + (0.8 - system.heart.activation.th[end])*2.5e-6;
+        tolz = 1e-12 + (0.8 - system.heart.activation.th[end])*2.5e-13;
         # Newton iterations
         yout = zeros(5);
         iters = Int64[0];

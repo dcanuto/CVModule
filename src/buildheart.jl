@@ -2,20 +2,22 @@ type Activation
     th::Array{Float64,1}
     tau1::Float64
     tau2::Float64
+    t1c::Float64
+    t2c::Float64
     m1::Float64
     m2::Float64
     k::Array{Float64,1}
 
     function Activation(old=Dict("a"=>0),restart="no")
         this = new()
-        # this.m1 = 1.32;
-        this.m1 = 1.6;
+        this.m1 = 2;
         this.m2 = 27.4;
+        this.t1c = 0.7;
+        this.t2c = 0.5;
         if restart == "no"
             this.th = [0.8];
-            # this.tau1 = 0.269*this.th[1];
-            this.tau1 = 0.452*this.th[1];
-            this.tau2 = 0.452*this.th[1];
+            this.tau1 = this.t1c*this.th[1];
+            this.tau2 = this.t2c*this.th[1];
             t = linspace(0,this.th[1],10000);
             g1 = (t/this.tau1).^this.m1;
             g2 = (t/this.tau2).^this.m2;
@@ -43,7 +45,8 @@ type LeftVentricle
         this.V0 = 10*cm3Tom3;
         this.Emin = 0.0283*mmHgToPa/cm3Tom3;
         if restart == "no"
-            this.Emax = [3*mmHgToPa/cm3Tom3];
+            this.Emax = [2.6*mmHgToPa/cm3Tom3];
+            # this.Emax = [3*mmHgToPa/cm3Tom3];
         elseif restart == "yes"
             this.Emax = [old["Emax"][end]];
         end
@@ -144,12 +147,12 @@ type AorticValve
         # this.Kvc = 0.16;
         this.Kvo = 0.10;
         this.Kvc = 0.10;
-        this.leff = 0.05;
+        this.leff = 0.07;
         this.Po = 0;
         this.Pc = 0;
         this.Aann = 3.8e-4;
         # this.Aann = 6e-4;
-        this.Ks = 8e-5/cm3Tom3;
+        this.Ks = 1e-4/cm3Tom3;
         this.zeta = Vector{Float64}[];
         return this
     end
