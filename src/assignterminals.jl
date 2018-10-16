@@ -1,18 +1,15 @@
-function assignterminals!(system::CVSystem,old=Dict("a"=>0),restart="no")
+function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64},
+    old=Dict("a"=>0),restart="no",assim="no")
     # terminal properties adapted from Danielsen (1998)
-    # R2Total = 0.3*mmHgToPa/cm3Tom3;
-    R2Total = 0.3*mmHgToPa/cm3Tom3;
-    R3Total = 0.21*mmHgToPa/cm3Tom3;
-    # R3Total = 0.22*mmHgToPa/cm3Tom3;
-    # R4Total = 0.003*mmHgToPa/cm3Tom3;
-    # R5Total = 0.01*mmHgToPa/cm3Tom3;
-    R4Total = 0.003*mmHgToPa/cm3Tom3;
-    R5Total = 0.01*mmHgToPa/cm3Tom3;
-    C1Total = 0.01*cm3Tom3/mmHgToPa;
-    C2Total = 1.64*cm3Tom3/mmHgToPa;
-    C3Total = 1.81*cm3Tom3/mmHgToPa;
-    C4Total = 13.24*cm3Tom3/mmHgToPa;
-    C5Total = 73.88*cm3Tom3/mmHgToPa;
+    R2Total = R[1];
+    R3Total = R[2];
+    R4Total = R[3];
+    R5Total = R[4];
+    C1Total = C[1];
+    C2Total = C[2];
+    C3Total = C[3];
+    C4Total = C[4];
+    C5Total = C[5];
     L5Total = 5e-5*mmHgToPa/cm3Tom3;
     V01 = 370*cm3Tom3;
     V02 = 370*cm3Tom3;
@@ -128,125 +125,172 @@ function assignterminals!(system::CVSystem,old=Dict("a"=>0),restart="no")
     # construct and define terminals
     for i in 1:length(system.branches.ID)
         if isempty(system.branches.children[i])
-            system.branches.term[i] = CVModule.ArterialTerminal();
+            if assim == "no"
+                system.branches.term[i] = CVModule.ArterialTerminal();
+            end
             group = system.branches.group[i];
             if group == "lower"
-                if !isempty(system.branches.term[i].C)
-                    system.branches.term[i].C[1] += C1Lower;
-                else
-                    push!(system.branches.term[i].C,C1Lower);
+                # compliance, lower compartments
+                if assim == "no"
+                    if restart == "no"
+                        push!(system.branches.term[i].C,C1Lower);
+                        push!(system.branches.term[i].C,C2Lower);
+                        push!(system.branches.term[i].C,C3Lower);
+                        push!(system.branches.term[i].C,C4Lower);
+                        push!(system.branches.term[i].C,C5Lower);
+                    elseif restart == "yes"
+                        temp = old[i]["C"];
+                        push!(system.branches.term[i].C,temp[1]);
+                        push!(system.branches.term[i].C,temp[2]);
+                        push!(system.branches.term[i].C,temp[3]);
+                        push!(system.branches.term[i].C,temp[4]);
+                        push!(system.branches.term[i].C,temp[5]);
+                    end
+                elseif assim == "yes"
+                    system.branches.term[i].C[1] = C1Lower;
+                    system.branches.term[i].C[2] = C2Lower;
+                    system.branches.term[i].C[3] = C3Lower;
+                    system.branches.term[i].C[4] = C4Lower;
+                    system.branches.term[i].C[5] = C5Lower;
                 end
-                push!(system.branches.term[i].C,C2Lower);
-                push!(system.branches.term[i].C,C3Lower);
-                if restart == "no"
-                    push!(system.branches.term[i].C,C4Lower);
-                    push!(system.branches.term[i].C,C5Lower);
-                elseif restart == "yes"
-                    temp = old[i]["C"];
-                    push!(system.branches.term[i].C,temp[4]);
-                    push!(system.branches.term[i].C,temp[5]);
+                # resistance, lower compartments
+                if assim == "no"
+                    if !isempty(system.branches.term[i].R)
+                        system.branches.term[i].R[1] += (system.solverparams.rho*
+                            system.branches.c0[i][end]/system.branches.A0[i][end]);
+                    else
+                        push!(system.branches.term[i].R,system.solverparams.rho*
+                            system.branches.c0[i][end]/system.branches.A0[i][end]);
+                    end
+                    if restart == "no"
+                        push!(system.branches.term[i].R,R2Lower);
+                        push!(system.branches.term[i].R,R3Lower);
+                        push!(system.branches.term[i].R,R4Lower);
+                        push!(system.branches.term[i].R,R5Lower);
+                    elseif restart == "yes"
+                        temp = old[i]["R"];
+                        push!(system.branches.term[i].R,temp[2]);
+                        push!(system.branches.term[i].R,temp[3]);
+                        push!(system.branches.term[i].R,temp[4]);
+                        push!(system.branches.term[i].R,temp[5]);
+                    end
+                elseif assim == "yes"
+                    system.branches.term[i].R[2] = R2Lower;
+                    system.branches.term[i].R[3] = R3Lower;
+                    system.branches.term[i].R[4] = R4Lower;
+                    system.branches.term[i].R[5] = R5Lower;
                 end
-                if !isempty(system.branches.term[i].R)
-                    system.branches.term[i].R[1] += (system.solverparams.rho*
-                        system.branches.c0[i][end]/system.branches.A0[i][end]);
-                else
-                    push!(system.branches.term[i].R,system.solverparams.rho*
-                        system.branches.c0[i][end]/system.branches.A0[i][end]);
+                if assim == "no"
+                    # unstressed volume, lower compartments
+                    if !isempty(system.branches.term[i].V0)
+                        system.branches.term[i].V0[1] += V01Lower;
+                    else
+                        push!(system.branches.term[i].V0,V01Lower);
+                    end
+                    push!(system.branches.term[i].V0,V02Lower);
+                    push!(system.branches.term[i].V0,V03Lower);
+                    if restart == "no"
+                        push!(system.branches.term[i].V0,V04Lower);
+                        push!(system.branches.term[i].V0,V05Lower);
+                    elseif restart == "yes"
+                        temp = old[i]["V0"];
+                        push!(system.branches.term[i].V0,temp[4]);
+                        push!(system.branches.term[i].V0,temp[5]);
+                    end
+                    # inertance, lower veins
+                    append!(system.branches.term[i].L,[zeros(4),L5Lower;])
                 end
-                if restart == "no"
-                    push!(system.branches.term[i].R,R2Lower);
-                    push!(system.branches.term[i].R,R3Lower);
-                elseif restart == "yes"
-                    temp = old[i]["R"];
-                    push!(system.branches.term[i].R,temp[2]);
-                    push!(system.branches.term[i].R,temp[3]);
-                end
-                push!(system.branches.term[i].R,R4Lower);
-                push!(system.branches.term[i].R,R5Lower);
-                if !isempty(system.branches.term[i].V0)
-                    system.branches.term[i].V0[1] += V01Lower;
-                else
-                    push!(system.branches.term[i].V0,V01Lower);
-                end
-                push!(system.branches.term[i].V0,V02Lower);
-                push!(system.branches.term[i].V0,V03Lower);
-                if restart == "no"
-                    push!(system.branches.term[i].V0,V04Lower);
-                    push!(system.branches.term[i].V0,V05Lower);
-                elseif restart == "yes"
-                    temp = old[i]["V0"];
-                    push!(system.branches.term[i].V0,temp[4]);
-                    push!(system.branches.term[i].V0,temp[5]);
-                end
-                append!(system.branches.term[i].L,[zeros(4),L5Lower;])
             else
-                if !isempty(system.branches.term[i].C)
-                    system.branches.term[i].C[1] += C1Upper;
-                else
-                    push!(system.branches.term[i].C,C1Upper);
+                # compliance, upper compartments
+                if assim == "no"
+                    if restart == "no"
+                        push!(system.branches.term[i].C,C1Upper);
+                        push!(system.branches.term[i].C,C2Upper);
+                        push!(system.branches.term[i].C,C3Upper);
+                        push!(system.branches.term[i].C,C4Upper);
+                        push!(system.branches.term[i].C,C5Upper);
+                    elseif restart == "yes"
+                        temp = old[i]["C"];
+                        push!(system.branches.term[i].C,temp[1]);
+                        push!(system.branches.term[i].C,temp[2]);
+                        push!(system.branches.term[i].C,temp[3]);
+                        push!(system.branches.term[i].C,temp[4]);
+                        push!(system.branches.term[i].C,temp[5]);
+                    end
+                elseif assim == "yes"
+                    system.branches.term[i].C[1] = C1Upper;
+                    system.branches.term[i].C[2] = C2Upper;
+                    system.branches.term[i].C[3] = C3Upper;
+                    system.branches.term[i].C[4] = C4Upper;
+                    system.branches.term[i].C[5] = C5Upper;
                 end
-                push!(system.branches.term[i].C,C2Upper);
-                push!(system.branches.term[i].C,C3Upper);
-                if restart == "no"
-                    push!(system.branches.term[i].C,C4Upper);
-                    push!(system.branches.term[i].C,C5Upper);
-                elseif restart == "yes"
-                    temp = old[i]["C"];
-                    push!(system.branches.term[i].C,temp[4]);
-                    push!(system.branches.term[i].C,temp[5]);
+                # resistance, upper compartments
+                if assim == "no"
+                    if !isempty(system.branches.term[i].R)
+                        system.branches.term[i].R[1] += (system.solverparams.rho*
+                            system.branches.c0[i][end]/system.branches.A0[i][end]);
+                    else
+                        push!(system.branches.term[i].R,system.solverparams.rho*
+                            system.branches.c0[i][end]/system.branches.A0[i][end]);
+                    end
+                    if restart == "no"
+                        push!(system.branches.term[i].R,R2Upper);
+                        push!(system.branches.term[i].R,R3Upper);
+                        push!(system.branches.term[i].R,R4Upper);
+                        push!(system.branches.term[i].R,R5Upper);
+                    elseif restart == "yes"
+                        temp = old[i]["R"];
+                        push!(system.branches.term[i].R,temp[2]);
+                        push!(system.branches.term[i].R,temp[3]);
+                        push!(system.branches.term[i].R,temp[4]);
+                        push!(system.branches.term[i].R,temp[5]);
+                    end
+                elseif assim == "yes"
+                    system.branches.term[i].R[2] = R2Upper;
+                    system.branches.term[i].R[3] = R3Upper;
+                    system.branches.term[i].R[4] = R4Upper;
+                    system.branches.term[i].R[5] = R5Upper;
                 end
-                if !isempty(system.branches.term[i].R)
-                    system.branches.term[i].R[1] += (system.solverparams.rho*
-                        system.branches.c0[i][end]/system.branches.A0[i][end]);
-                else
-                    push!(system.branches.term[i].R,system.solverparams.rho*
-                        system.branches.c0[i][end]/system.branches.A0[i][end]);
+                # unstressed volume, upper compartments
+                if assim == "no"
+                    if !isempty(system.branches.term[i].V0)
+                        system.branches.term[i].V0[1] += V01Upper;
+                    else
+                        push!(system.branches.term[i].V0,V01Upper);
+                    end
+                    push!(system.branches.term[i].V0,V02Upper);
+                    push!(system.branches.term[i].V0,V03Upper);
+                    if restart == "no"
+                        push!(system.branches.term[i].V0,V04Upper);
+                        push!(system.branches.term[i].V0,V05Upper);
+                    elseif restart == "yes"
+                        temp = old[i]["V0"];
+                        push!(system.branches.term[i].V0,temp[4]);
+                        push!(system.branches.term[i].V0,temp[5]);
+                    end
+                    append!(system.branches.term[i].L,[zeros(4),L5Upper;])
                 end
-                if restart == "no"
-                    push!(system.branches.term[i].R,R2Upper);
-                    push!(system.branches.term[i].R,R3Upper);
-                elseif restart == "yes"
-                    temp = old[i]["R"];
-                    push!(system.branches.term[i].R,temp[2]);
-                    push!(system.branches.term[i].R,temp[3]);
-                end
-                push!(system.branches.term[i].R,R4Upper);
-                push!(system.branches.term[i].R,R5Upper);
-                if !isempty(system.branches.term[i].V0)
-                    system.branches.term[i].V0[1] += V01Upper;
-                else
-                    push!(system.branches.term[i].V0,V01Upper);
-                end
-                push!(system.branches.term[i].V0,V02Upper);
-                push!(system.branches.term[i].V0,V03Upper);
-                if restart == "no"
-                    push!(system.branches.term[i].V0,V04Upper);
-                    push!(system.branches.term[i].V0,V05Upper);
-                elseif restart == "yes"
-                    temp = old[i]["V0"];
-                    push!(system.branches.term[i].V0,temp[4]);
-                    push!(system.branches.term[i].V0,temp[5]);
-                end
-                append!(system.branches.term[i].L,[zeros(4),L5Upper;])
             end
         else
-            system.branches.term[i] = CVModule.ArterialTerminal();
-            if !isempty(system.branches.term[i].C)
-                system.branches.term[i].C[1] += NaN;
-            else
-                push!(system.branches.term[i].C,NaN);
+            if assim == "no"
+                system.branches.term[i] = CVModule.ArterialTerminal();
+                if !isempty(system.branches.term[i].C)
+                    system.branches.term[i].C[1] += NaN;
+                else
+                    push!(system.branches.term[i].C,NaN);
+                end
+                if !isempty(system.branches.term[i].R)
+                    system.branches.term[i].R[1] += NaN;
+                else
+                    push!(system.branches.term[i].R,NaN);
+                end
+                if !isempty(system.branches.term[i].V0)
+                    system.branches.term[i].V0[1] += NaN;
+                else
+                    push!(system.branches.term[i].V0,NaN);
+                end
+                push!(system.branches.term[i].L,NaN);
             end
-            if !isempty(system.branches.term[i].R)
-                system.branches.term[i].R[1] += NaN;
-            else
-                push!(system.branches.term[i].R,NaN);
-            end
-            if !isempty(system.branches.term[i].V0)
-                system.branches.term[i].V0[1] += NaN;
-            else
-                push!(system.branches.term[i].V0,NaN);
-            end
-            push!(system.branches.term[i].L,NaN);
         end
     end
 

@@ -35,4 +35,6 @@ function updatevolumes!(system::CVSystem,n::Int64)
             system.lungvolume + system.livervolume);
         println("Blood volume at t = $(system.t[n+1]) s: $(system.finalvolume/cm3Tom3) mL")
     end
+
+    return system
 end

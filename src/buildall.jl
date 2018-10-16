@@ -47,12 +47,15 @@ end
 
 # build solution struct
 function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
+    # terminal properties adapted from Danielsen (1998)
+    Rdefault = [0.3,0.21,0.003,0.01]*mmHgToPa/cm3Tom3;
+    Cdefault = [0.01,1.64,1.81,13.24,73.88]*cm3Tom3/mmHgToPa;
     if restart == "no"
         system = CVModule.CVSystem(filename);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system);
         CVModule.discretizebranches!(system);
-        CVModule.assignterminals!(system);
+        CVModule.assignterminals!(system,Rdefault,Cdefault);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);
@@ -79,7 +82,7 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system,branches,restart);
         CVModule.discretizebranches!(system,sys,restart);
-        CVModule.assignterminals!(system,term,restart);
+        CVModule.assignterminals!(system,Rdefault,Cdefault,term,restart);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);

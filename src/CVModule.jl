@@ -124,6 +124,11 @@ include("model1dhemo.jl")
 include("senddata.jl")
 include("sc.jl")
 
+# data assimilation
+include("advancetime.jl")
+include("builderrors.jl")
+include("paramwalk.jl")
+
 export CVSystem
 export CVTimer
 export Heart
@@ -155,10 +160,6 @@ export elastancefn!
 export elastancemodel!
 export updatevolumes!
 export buildall
-export predictorfluxes!
-export predictorstep!
-export correctorfluxes!
-export correctorstep!
 export applyendbcs!
 export coupledistal!
 export endinvariants!
