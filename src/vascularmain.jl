@@ -3,22 +3,22 @@ importall CVModule
 function main()
 
 # options
-rstflag = "no" # restarting from scratch or previous simulation
+rstflag = "yes" # restarting from scratch or previous simulation
 hemoflag = "no" # 10% hemorrhage from left femoral artery
-saveflag = "no" # save solution to .mat file
+saveflag = "yes" # save solution to .mat file
 coupleflag = "no" # coupling to 3D liver tissue model
 timeflag = "yes" # solver timing
-assimflag = "yes" # patient data assimilation via EnKF
+assimflag = "no" # patient data assimilation via EnKF
 
 # build solution struct or generate ensemble
 if assimflag == "no"
     if rstflag == "no"
         loadfile = "arterytree.csv"; # default artery data file for new sim
     elseif rstflag == "yes"
-        loadfile = "converged3.mat"; # restart file
+        loadfile = "test1.mat"; # restart file
     end
     system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
-    savefile = "test1.mat" # filename for saving (only used if saveflag == "yes")
+    savefile = "default.mat" # filename for saving (only used if saveflag == "yes")
 elseif assimflag == "yes"
     ensemblesize = 3;
     if rstflag == "no"

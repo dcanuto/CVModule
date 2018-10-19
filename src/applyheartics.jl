@@ -21,6 +21,8 @@ function applyheartics!(system::CVSystem,old=Dict("a"=>0),restart="no")
         system.heart.rv.V[1] = rv["V"][end];
         system.heart.la.V[1] = la["V"][end];
         system.heart.ra.V[1] = ra["V"][end];
+        system.heart.la.Q[1] = la["Q"][end];
+        system.heart.ra.Q[1] = ra["Q"][end];
         system.heart.av.zeta[1] = av["zeta"][end];
     end
 

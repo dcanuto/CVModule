@@ -1,6 +1,7 @@
 function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64},
-    old=Dict("a"=>0),restart="no",assim="no")
-    # terminal properties adapted from Danielsen (1998)
+    V::Vector{Float64},L::Float64,lowerflowfraction::Float64,venousfractionofR::Float64,
+    venousfractionofL::Float64,venousfractionofC::Float64,venousfractionofV0::Float64,
+    old=Dict("a"=>0),restart="no",assim="no",sample="no")
     R2Total = R[1];
     R3Total = R[2];
     R4Total = R[3];
@@ -10,14 +11,12 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
     C3Total = C[3];
     C4Total = C[4];
     C5Total = C[5];
-    L5Total = 5e-5*mmHgToPa/cm3Tom3;
-    V01 = 370*cm3Tom3;
-    V02 = 370*cm3Tom3;
-    V03 = 400*cm3Tom3;
-    # V04 = 596*cm3Tom3;
-    V04 = 500*cm3Tom3;
-    # V05 = 1938*cm3Tom3;
-    V05 = 1400*cm3Tom3;
+    L5Total = L;
+    V01 = V[1];
+    V02 = V[2];
+    V03 = V[3];
+    V04 = V[4];
+    V05 = V[5];
 
     numterminals = 0;
     numlower = 0;
@@ -33,19 +32,6 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
             end
         end
     end
-
-    # divide flow between upper and lower body
-    if numupper > 0
-        lowerflowfraction = 0.7;
-    else
-        lowerflowfraction = 1;
-    end
-
-    # divide flow between systemic veins and vena cava
-    venousfractionofR = 0.1;
-    venousfractionofL = 0.05;
-    venousfractionofC = 0.95;
-    venousfractionofV0 = 0.9;
 
     # divide total peripheral impedance according to desired flow divisions
     R2Lower = numterminals*R2Total;
@@ -76,51 +62,34 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
     V05Lower = venousfractionofV0*V05/numterminals;
     V05Upper = venousfractionofV0*V05/numterminals;
 
-    if numupper > 0
-        system.svc.C = 0.25*(1-venousfractionofC)*C5Total;
-        system.ivc.C = 0.75*(1-venousfractionofC)*C5Total;
-        system.svc.V0 = 0.5*(1-venousfractionofV0)*V05;
-        system.ivc.V0 = 0.5*(1-venousfractionofV0)*V05;
+    system.svc.C = (1-lowerflowfraction)*(1-venousfractionofC)*C5Total;
+    system.ivc.C = lowerflowfraction*(1-venousfractionofC)*C5Total;
+    system.svc.V0 = 0.5*(1-venousfractionofV0)*V05;
+    system.ivc.V0 = 0.5*(1-venousfractionofV0)*V05;
 
-        RL = R5Total/lowerflowfraction;
-        RU = R5Total/(1-lowerflowfraction);
+    RL = R5Total/lowerflowfraction;
+    RU = R5Total/(1-lowerflowfraction);
 
-        system.ivc.R = RL*(venousfractionofR/(1-venousfractionofR) + 1)^-1;
-        system.svc.R = RU*(venousfractionofR/(1-venousfractionofR) + 1)^-1;
+    system.ivc.R = RL*(venousfractionofR/(1-venousfractionofR) + 1)^-1;
+    system.svc.R = RU*(venousfractionofR/(1-venousfractionofR) + 1)^-1;
 
-        Rl = RL - system.ivc.R;
-        Ru = RU - system.svc.R;
+    Rl = RL - system.ivc.R;
+    Ru = RU - system.svc.R;
 
-        R5Lower = numlower*Rl;
-        R5Upper = numupper*Ru;
+    R5Lower = numlower*Rl;
+    R5Upper = numupper*Ru;
 
-        LL = L5Total/lowerflowfraction;
-        LU = L5Total/(1-lowerflowfraction);
+    LL = L5Total/lowerflowfraction;
+    LU = L5Total/(1-lowerflowfraction);
 
-        system.ivc.L = LL*(venousfractionofL/(1-venousfractionofL) + 1)^-1;
-        system.svc.L = LU*(venousfractionofL/(1-venousfractionofL) + 1)^-1;
+    system.ivc.L = LL*(venousfractionofL/(1-venousfractionofL) + 1)^-1;
+    system.svc.L = LU*(venousfractionofL/(1-venousfractionofL) + 1)^-1;
 
-        Ll = LL - system.ivc.L;
-        Lu = LU - system.svc.L;
+    Ll = LL - system.ivc.L;
+    Lu = LU - system.svc.L;
 
-        L5Lower = numlower*Ll;
-        L5Upper = numupper*Lu;
-    else
-        system.ivc.C = (1-venousfractionofC)*C5Total;
-        system.ivc.V0 = (1-venousfractionofV0)*V05;
-
-        RL = R5Total/lowerflowfraction;
-        system.ivc.R = RL*(venousfractionofR/(1-venousfractionofR) + 1)^-1;
-
-        Rl = RL - system.ivc.R;
-        R5Lower = numlower*Rl;
-
-        LL = L5Total/lowerflowfraction;
-        system.ivc.L = LL*(venousfractionofL/(1-venousfractionofL) + 1)^-1;
-
-        Ll = LL - system.ivc.L;
-        L5Lower = numlower*Ll;
-    end
+    L5Lower = numlower*Ll;
+    L5Upper = numupper*Lu;
 
     # construct and define terminals
     for i in 1:length(system.branches.ID)
@@ -131,7 +100,7 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
             group = system.branches.group[i];
             if group == "lower"
                 # compliance, lower compartments
-                if assim == "no"
+                if assim == "no" && sample == "no"
                     if restart == "no"
                         push!(system.branches.term[i].C,C1Lower);
                         push!(system.branches.term[i].C,C2Lower);
@@ -146,7 +115,7 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                         push!(system.branches.term[i].C,temp[4]);
                         push!(system.branches.term[i].C,temp[5]);
                     end
-                elseif assim == "yes"
+                elseif assim == "yes" || sample == "yes"
                     system.branches.term[i].C[1] = C1Lower;
                     system.branches.term[i].C[2] = C2Lower;
                     system.branches.term[i].C[3] = C3Lower;
@@ -154,55 +123,61 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                     system.branches.term[i].C[5] = C5Lower;
                 end
                 # resistance, lower compartments
-                if assim == "no"
-                    if !isempty(system.branches.term[i].R)
-                        system.branches.term[i].R[1] += (system.solverparams.rho*
-                            system.branches.c0[i][end]/system.branches.A0[i][end]);
-                    else
+                if assim == "no" && sample == "no"
+                    if restart == "no"
                         push!(system.branches.term[i].R,system.solverparams.rho*
                             system.branches.c0[i][end]/system.branches.A0[i][end]);
-                    end
-                    if restart == "no"
                         push!(system.branches.term[i].R,R2Lower);
                         push!(system.branches.term[i].R,R3Lower);
                         push!(system.branches.term[i].R,R4Lower);
                         push!(system.branches.term[i].R,R5Lower);
                     elseif restart == "yes"
                         temp = old[i]["R"];
+                        push!(system.branches.term[i].R,temp[1]);
                         push!(system.branches.term[i].R,temp[2]);
                         push!(system.branches.term[i].R,temp[3]);
                         push!(system.branches.term[i].R,temp[4]);
                         push!(system.branches.term[i].R,temp[5]);
                     end
-                elseif assim == "yes"
+                elseif assim == "yes" || sample == "yes"
                     system.branches.term[i].R[2] = R2Lower;
                     system.branches.term[i].R[3] = R3Lower;
                     system.branches.term[i].R[4] = R4Lower;
                     system.branches.term[i].R[5] = R5Lower;
                 end
-                if assim == "no"
+                if assim == "no" && sample == "no"
                     # unstressed volume, lower compartments
-                    if !isempty(system.branches.term[i].V0)
-                        system.branches.term[i].V0[1] += V01Lower;
-                    else
-                        push!(system.branches.term[i].V0,V01Lower);
-                    end
-                    push!(system.branches.term[i].V0,V02Lower);
-                    push!(system.branches.term[i].V0,V03Lower);
                     if restart == "no"
+                        push!(system.branches.term[i].V0,V01Lower);
+                        push!(system.branches.term[i].V0,V02Lower);
+                        push!(system.branches.term[i].V0,V03Lower);
                         push!(system.branches.term[i].V0,V04Lower);
                         push!(system.branches.term[i].V0,V05Lower);
                     elseif restart == "yes"
                         temp = old[i]["V0"];
+                        push!(system.branches.term[i].V0,temp[1]);
+                        push!(system.branches.term[i].V0,temp[2]);
+                        push!(system.branches.term[i].V0,temp[3]);
                         push!(system.branches.term[i].V0,temp[4]);
                         push!(system.branches.term[i].V0,temp[5]);
                     end
                     # inertance, lower veins
-                    append!(system.branches.term[i].L,[zeros(4),L5Lower;])
+                    if restart == "no"
+                        append!(system.branches.term[i].L,[zeros(4),L5Lower;])
+                    elseif restart == "yes"
+                        temp = old[i]["L"];
+                        append!(system.branches.term[i].L,temp)
+                    end
+                elseif assim == "yes" || sample == "yes"
+                    system.branches.term[i].V0[1] = V01Lower;
+                    system.branches.term[i].V0[2] = V02Lower;
+                    system.branches.term[i].V0[3] = V03Lower;
+                    system.branches.term[i].V0[4] = V04Lower;
+                    system.branches.term[i].V0[5] = V05Lower;
                 end
             else
                 # compliance, upper compartments
-                if assim == "no"
+                if assim == "no" && sample == "no"
                     if restart == "no"
                         push!(system.branches.term[i].C,C1Upper);
                         push!(system.branches.term[i].C,C2Upper);
@@ -217,7 +192,7 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                         push!(system.branches.term[i].C,temp[4]);
                         push!(system.branches.term[i].C,temp[5]);
                     end
-                elseif assim == "yes"
+                elseif assim == "yes" || sample == "yes"
                     system.branches.term[i].C[1] = C1Upper;
                     system.branches.term[i].C[2] = C2Upper;
                     system.branches.term[i].C[3] = C3Upper;
@@ -225,50 +200,57 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                     system.branches.term[i].C[5] = C5Upper;
                 end
                 # resistance, upper compartments
-                if assim == "no"
-                    if !isempty(system.branches.term[i].R)
-                        system.branches.term[i].R[1] += (system.solverparams.rho*
-                            system.branches.c0[i][end]/system.branches.A0[i][end]);
-                    else
+                if assim == "no" && sample == "no"
+                    if restart == "no"
                         push!(system.branches.term[i].R,system.solverparams.rho*
                             system.branches.c0[i][end]/system.branches.A0[i][end]);
-                    end
-                    if restart == "no"
                         push!(system.branches.term[i].R,R2Upper);
                         push!(system.branches.term[i].R,R3Upper);
                         push!(system.branches.term[i].R,R4Upper);
                         push!(system.branches.term[i].R,R5Upper);
                     elseif restart == "yes"
                         temp = old[i]["R"];
+                        push!(system.branches.term[i].R,temp[1]);
                         push!(system.branches.term[i].R,temp[2]);
                         push!(system.branches.term[i].R,temp[3]);
                         push!(system.branches.term[i].R,temp[4]);
                         push!(system.branches.term[i].R,temp[5]);
                     end
-                elseif assim == "yes"
+                elseif assim == "yes" || sample == "yes"
                     system.branches.term[i].R[2] = R2Upper;
                     system.branches.term[i].R[3] = R3Upper;
                     system.branches.term[i].R[4] = R4Upper;
                     system.branches.term[i].R[5] = R5Upper;
                 end
-                # unstressed volume, upper compartments
-                if assim == "no"
-                    if !isempty(system.branches.term[i].V0)
-                        system.branches.term[i].V0[1] += V01Upper;
-                    else
-                        push!(system.branches.term[i].V0,V01Upper);
-                    end
-                    push!(system.branches.term[i].V0,V02Upper);
-                    push!(system.branches.term[i].V0,V03Upper);
+                if assim == "no" && sample == "no"
+                    # unstressed volume, upper compartments
                     if restart == "no"
+                        push!(system.branches.term[i].V0,V01Upper);
+                        push!(system.branches.term[i].V0,V02Upper);
+                        push!(system.branches.term[i].V0,V03Upper);
                         push!(system.branches.term[i].V0,V04Upper);
                         push!(system.branches.term[i].V0,V05Upper);
                     elseif restart == "yes"
                         temp = old[i]["V0"];
+                        push!(system.branches.term[i].V0,temp[1]);
+                        push!(system.branches.term[i].V0,temp[2]);
+                        push!(system.branches.term[i].V0,temp[3]);
                         push!(system.branches.term[i].V0,temp[4]);
                         push!(system.branches.term[i].V0,temp[5]);
                     end
-                    append!(system.branches.term[i].L,[zeros(4),L5Upper;])
+                    # inertance, upper veins
+                    if restart == "no"
+                        append!(system.branches.term[i].L,[zeros(4),L5Upper;])
+                    elseif restart == "yes"
+                        temp = old[i]["L"];
+                        append!(system.branches.term[i].L,temp)
+                    end
+                elseif assim == "yes" || sample == "yes"
+                    system.branches.term[i].V0[1] = V01Upper;
+                    system.branches.term[i].V0[2] = V02Upper;
+                    system.branches.term[i].V0[3] = V03Upper;
+                    system.branches.term[i].V0[4] = V04Upper;
+                    system.branches.term[i].V0[5] = V05Upper;
                 end
             end
         else

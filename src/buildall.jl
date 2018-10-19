@@ -50,12 +50,20 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
     # terminal properties adapted from Danielsen (1998)
     Rdefault = [0.3,0.21,0.003,0.01]*mmHgToPa/cm3Tom3;
     Cdefault = [0.01,1.64,1.81,13.24,73.88]*cm3Tom3/mmHgToPa;
+    Vdefault = [370.,370.,400.,500.,1400.]*cm3Tom3;
+    Ldefault = 5e-5*mmHgToPa/cm3Tom3;
+    lowerflowfraction = 0.7;
+    venousfractionofR = 0.1;
+    venousfractionofL = 0.05;
+    venousfractionofC = 0.95;
+    venousfractionofV0 = 0.9;
     if restart == "no"
         system = CVModule.CVSystem(filename);
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system);
         CVModule.discretizebranches!(system);
-        CVModule.assignterminals!(system,Rdefault,Cdefault);
+        CVModule.assignterminals!(system,Rdefault,Cdefault,Vdefault,Ldefault,lowerflowfraction,
+            venousfractionofR,venousfractionofL,venousfractionofC,venousfractionofV0);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);
@@ -82,7 +90,8 @@ function buildall(filename="test.csv";numbeatstotal=1,restart="no",injury="no")
         system.solverparams.numbeatstotal = numbeatstotal;
         CVModule.calcbranchprops!(system,branches,restart);
         CVModule.discretizebranches!(system,sys,restart);
-        CVModule.assignterminals!(system,Rdefault,Cdefault,term,restart);
+        CVModule.assignterminals!(system,Rdefault,Cdefault,Vdefault,Ldefault,lowerflowfraction,
+            venousfractionofR,venousfractionofL,venousfractionofC,venousfractionofV0,term,restart);
         CVModule.discretizeperiphery!(system);
         CVModule.discretizeheart!(system);
         CVModule.discretizelungs!(system);
