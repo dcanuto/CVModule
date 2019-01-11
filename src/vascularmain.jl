@@ -9,22 +9,27 @@ saveflag = "yes" # save solution to .mat file
 coupleflag = "no" # coupling to 3D liver tissue model
 timeflag = "yes" # solver timing
 assimflag = "no" # patient data assimilation via EnKF
+if rstflag == "no"
+    sampleflag = "yes" # LH-OAT sampling (only use when startijng from scratch)
+elseif rstflag == "yes"
+    sampleflag = "no" # LH-OAT sampling (only use when starting from scratch)
+end
+colnum = 3;
 
 # build solution struct or generate ensemble
 if assimflag == "no"
     if rstflag == "no"
         loadfile = "arterytree.csv"; # default artery data file for new sim
     elseif rstflag == "yes"
-        loadfile = "test1.mat"; # restart file
+        loadfile = "lhoat3_$colnum.mat"; # restart file
     end
-    system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
-    savefile = "default.mat" # filename for saving (only used if saveflag == "yes")
+    system = CVModule.buildall(loadfile;numbeatstotal=10,restart=rstflag,injury=hemoflag);
+    savefile = "lhoat3_$colnum.mat" # filename for saving (only used if saveflag == "yes")
 elseif assimflag == "yes"
     ensemblesize = 3;
     if rstflag == "no"
         loadfiles = ["arterytree.csv" for i=1:ensemblesize];
-    elseif rstflag == "yes"
-        loadfiles = ["test_1_$i.mat" for i=1:ensemblesize];
+    elseif rstflag == "yes" loadfiles = ["test_1_$i.mat" for i=1:ensemblesize];
     end
     systems = pmap((a1)->CVModule.buildall(a1;numbeatstotal=1,restart=rstflag,
         injury=hemoflag),loadfiles);
@@ -113,6 +118,17 @@ if assimflag == "no"
     n = system.solverparams.nstart;
 elseif assimflag == "yes"
     n = [systems[1].solverparams.nstart for i=1:ensemblesize];
+end
+
+# insert LH-OAT sample into model parameters
+if sampleflag == "yes"
+    rstflag == "no" ||
+        throw(ArgumentError("rstflag must be set to \"no\" to insert LH-OAT sample"))
+    pointfile = "lhoat_3.mat"
+    vname = "lhoat_3"
+    pin = MAT.matread(pointfile);
+    params = pin[vname][:,colnum];
+    CVModule.sampletoparams!(system,params,rstflag,assimflag,sampleflag)
 end
 
 # coupling to 3D liver model (only for non-ensemble simulation)

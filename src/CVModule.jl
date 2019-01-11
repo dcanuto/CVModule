@@ -57,7 +57,6 @@ include("updatevolumes.jl")
 include("correctvolume.jl")
 
 # TVD RK3 + WENO3 for artery interiors
-include("arteryodes.jl")
 include("tvdrk3.jl")
 include("invariants.jl")
 include("invariantodes.jl")
@@ -129,6 +128,12 @@ include("advancetime.jl")
 include("builderrors.jl")
 include("paramwalk.jl")
 
+# LH-OAT sampling
+include("lhsample.jl")
+include("lhoat.jl")
+include("sampleranges.jl")
+include("sampletoparams.jl")
+
 export CVSystem
 export CVTimer
 export Heart
@@ -139,6 +144,7 @@ export Lungs
 export Liver
 export CNS
 export Hemorrhage
+export SampleRanges
 
 export loadtexttree
 export calcbranchprops!

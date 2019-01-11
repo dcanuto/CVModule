@@ -145,14 +145,14 @@ type AorticValve
         this = new()
         # this.Kvo = 0.16;
         # this.Kvc = 0.16;
-        this.Kvo = 0.10;
-        this.Kvc = 0.10;
-        this.leff = 0.07;
+        this.Kvo = 0.12;
+        this.Kvc = 0.12;
+        this.leff = 0.03;
         this.Po = 0;
         this.Pc = 0;
-        this.Aann = 3.8e-4;
-        # this.Aann = 6e-4;
-        this.Ks = 1e-4/cm3Tom3;
+        # this.Aann = 3.8e-4;
+        this.Aann = 6e-4;
+        this.Ks = 1e-8/cm3Tom3;
         this.zeta = Vector{Float64}[];
         return this
     end

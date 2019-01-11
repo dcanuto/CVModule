@@ -94,7 +94,7 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
     # construct and define terminals
     for i in 1:length(system.branches.ID)
         if isempty(system.branches.children[i])
-            if assim == "no"
+            if assim == "no" && sample == "no"
                 system.branches.term[i] = CVModule.ArterialTerminal();
             end
             group = system.branches.group[i];
@@ -140,6 +140,8 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                         push!(system.branches.term[i].R,temp[5]);
                     end
                 elseif assim == "yes" || sample == "yes"
+                    system.branches.term[i].R[1] = system.solverparams.rho*
+                        system.branches.c0[i][end]/system.branches.A0[i][end];
                     system.branches.term[i].R[2] = R2Lower;
                     system.branches.term[i].R[3] = R3Lower;
                     system.branches.term[i].R[4] = R4Lower;
@@ -217,6 +219,8 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                         push!(system.branches.term[i].R,temp[5]);
                     end
                 elseif assim == "yes" || sample == "yes"
+                    system.branches.term[i].R[1] = system.solverparams.rho*
+                        system.branches.c0[i][end]/system.branches.A0[i][end];
                     system.branches.term[i].R[2] = R2Upper;
                     system.branches.term[i].R[3] = R3Upper;
                     system.branches.term[i].R[4] = R4Upper;
@@ -254,7 +258,7 @@ function assignterminals!(system::CVSystem,R::Vector{Float64},C::Vector{Float64}
                 end
             end
         else
-            if assim == "no"
+            if assim == "no" && sample == "no"
                 system.branches.term[i] = CVModule.ArterialTerminal();
                 if !isempty(system.branches.term[i].C)
                     system.branches.term[i].C[1] += NaN;

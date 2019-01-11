@@ -11,9 +11,11 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
     else
         zdot = zeta.*Kvc.*(Plv.-Pa.*mmHgToPa);
     end
-    if abs(zdot) <= tolz
-        println("dζ/dt under tolerance at HR = $(60/th) bpm. tol = $tolz.
-            ζ = $zeta. Switching to reduced system.")
+    if abs(zdot) <= tolz  #|| (zeta > (1-0.1*tolz) && state == "opening")
+        if abs(zdot <= tolz)
+            println("dζ/dt under tolerance at HR = $(60/th) bpm. tol = $tolz.
+                ζ = $zeta. Switching to reduced system.")
+        end
         x0 = zeros(2);
         xx = zeros(2);
         if Q == 0
@@ -78,7 +80,8 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
     # println(state)
     # Newton iterations
     while N <= maxiter
-        Plv = E.*(xx[2].*Vs .- V0);
+        Plv = E.*(xx[2].*Vs .- V0)*
+            (1-Ks*(2.*rho./beta).^2.*((xx[1].*vs .- W2root)./8 .+ c0).^4.*(xx[1].*vs .+ W2root)/2);
         Pao = beta.*((2.*rho./beta).*((xx[1].*vs .- W2root)./8 .+ c0).^2 .- sqrt.(A0));
         if Plv > Pao
             state = "opening";
@@ -97,9 +100,13 @@ function newtonav!(yout::Vector{Float64},iters::Vector{Int64},Vs::Float64,vs::Fl
         # println(cond(D*JJ))
         # println(det(D*JJ))
         if abs(det(D*JJ)) < epsJ
-            println(JJ)
-            println(D*JJ)
-            print(det(D*JJ))
+            println("Unscaled proximal Jacobian:")
+            display(JJ)
+            println("Scaled proximal Jacobian:")
+            display(D*JJ)
+            println("Determinant of scaled Jacobian:")
+            println(det(D*JJ))
+            println("Unscaled state vector: $([xx[1]*vs,xx[2]*Vs,xx[3]*zs])")
             error("Newton Jacobian is singular.");
         end
         # compute gradient of line search objective function

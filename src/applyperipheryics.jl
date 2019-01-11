@@ -7,7 +7,7 @@ function applyperipheryics!(system::CVSystem,old=Dict("a"=>0),restart="no")
         if isempty(system.branches.children[i])
             if restart == "no"
                 system.branches.term[i].P[1,1] = (
-                    system.branches.P[i][1,system.solverparams.JL]*mmHgToPa);
+                    system.branches.P[i][system.solverparams.JL,1]*mmHgToPa);
                 system.branches.term[i].V[1,1] = (
                 system.branches.term[i].P[1,1]*system.branches.term[i].C[1] +
                 system.branches.term[i].V0[1]);
