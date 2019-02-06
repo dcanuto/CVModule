@@ -14,7 +14,7 @@ if rstflag == "no"
 elseif rstflag == "yes"
     sampleflag = "no" # LH-OAT sampling (only use when starting from scratch)
 end
-colnum = 3;
+colnum = 6;
 
 # build solution struct or generate ensemble
 if assimflag == "no"
@@ -23,7 +23,7 @@ if assimflag == "no"
     elseif rstflag == "yes"
         loadfile = "lhoat3_$colnum.mat"; # restart file
     end
-    system = CVModule.buildall(loadfile;numbeatstotal=10,restart=rstflag,injury=hemoflag);
+    system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
     savefile = "lhoat3_$colnum.mat" # filename for saving (only used if saveflag == "yes")
 elseif assimflag == "yes"
     ensemblesize = 3;
