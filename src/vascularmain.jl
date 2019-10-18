@@ -14,17 +14,17 @@ if rstflag == "no"
 elseif rstflag == "yes"
     sampleflag = "no" # LH-OAT sampling (only use when starting from scratch)
 end
-colnum = 6;
+colnum = 70;
 
 # build solution struct or generate ensemble
 if assimflag == "no"
     if rstflag == "no"
         loadfile = "arterytree.csv"; # default artery data file for new sim
     elseif rstflag == "yes"
-        loadfile = "lhoat3_$colnum.mat"; # restart file
+        loadfile = "lhoat4_$colnum.mat"; # restart file
     end
     system = CVModule.buildall(loadfile;numbeatstotal=1,restart=rstflag,injury=hemoflag);
-    savefile = "lhoat3_$colnum.mat" # filename for saving (only used if saveflag == "yes")
+    savefile = "lhoat4_$colnum.mat" # filename for saving (only used if saveflag == "yes")
 elseif assimflag == "yes"
     ensemblesize = 3;
     if rstflag == "no"
@@ -124,8 +124,8 @@ end
 if sampleflag == "yes"
     rstflag == "no" ||
         throw(ArgumentError("rstflag must be set to \"no\" to insert LH-OAT sample"))
-    pointfile = "lhoat_3.mat"
-    vname = "lhoat_3"
+    pointfile = "lhoat_4.mat"
+    vname = "lhoat_4"
     pin = MAT.matread(pointfile);
     params = pin[vname][:,colnum];
     CVModule.sampletoparams!(system,params,rstflag,assimflag,sampleflag)
